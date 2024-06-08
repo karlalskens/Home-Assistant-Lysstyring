@@ -9,7 +9,7 @@ blueprint:
 
   domain: automation
   author: Karl Jørgen
-  source_url: 
+  source_url: https://github.com/karlalskens/Home-Assistant-Lysstyring/blob/main/blueprints/automation/karlalskens/Trigger_for_Lysstyring.yaml
   input:
     binary_sensors:
       name: Binary Sensors
