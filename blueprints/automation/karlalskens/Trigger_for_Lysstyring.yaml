@@ -1,5 +1,5 @@
 blueprint:
-  name: Sensoraktivering av område
+  name: Trigger for lysstyring
   description: >
     Ok, så her er greia: Dette "mønstret" (eller hva man nå skal kalle det) sitter og følger med på noen binære sensorer, og så kicker det inn noen input_boolean-sensorer når en av de binære sensorene går fra 0 til 1. Woo-hoo.
 
@@ -8,6 +8,8 @@ blueprint:
     Og hvis du gidder å slå av en input_boolean, så stopper klokka og hele automasjonen bare gir opp. The end.
 
   domain: automation
+  author: Karl Jørgen
+  source_url: 
   input:
     binary_sensors:
       name: Binary Sensors
