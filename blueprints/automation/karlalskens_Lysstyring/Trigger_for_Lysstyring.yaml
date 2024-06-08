@@ -1,11 +1,9 @@
 blueprint:
   name: Trigger for lysstyring
   description: >
-    Ok, så her er greia: Dette "mønstret" (eller hva man nå skal kalle det) sitter og følger med på noen binære sensorer, og så kicker det inn noen input_boolean-sensorer når en av de binære sensorene går fra 0 til 1. Woo-hoo.
+    Dette er første del av lysstyringen. Det er en automasjon som ved bevegelse får en input_boolean til å¨slå seg på. Etter en gitt tid uten aktivitet slår den verdien av igjen.
 
-    Klokka starter på nytt hvis noen av de binære sensorene får et rykk og går fra 0 til 1 mens klokka tikker. Når tiden er ute, så nullstilles output-sensorene til 0. Hurra.
-
-    Og hvis du gidder å slå av en input_boolean, så stopper klokka og hele automasjonen bare gir opp. The end.
+    For at dette skal fungere må scener aktiveres av denne verdien.
 
   domain: automation
   author: Karl Jørgen
