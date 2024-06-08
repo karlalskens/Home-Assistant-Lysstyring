@@ -71,20 +71,47 @@ action:
                 entity_id: !input input_booleans
                 from: "on"
                 to: "off"
+              - platform: time_pattern
+                minutes: "/5"
             continue_on_timeout: true
             timeout: !input countdown_time
+            action:
+              - choose:
+                  - conditions:
+                      - condition: state
+                        entity_id: !input binary_sensors
+                        state: "on"
+                    sequence:
+                      - service: input_boolean.turn_on
+                        target:
+                          entity_id: !input input_booleans
+                  - conditions:
+                      - condition: state
+                        entity_id: !input binary_sensors
+                        state: "off"
+                    sequence:
+                      - service: input_boolean.turn_off
+                        target:
+                          entity_id: !input input_booleans
+  - choose:
       - conditions:
           - condition: template
-            value_template: >
-              {{
-                trigger.platform == 'time_pattern' and 
-                states | selectattr('entity_id', 'in', (input.binary_sensors | list)) | selectattr('state', 'eq', 'on') | list | length > 0
-              }}
+            value_template: "{{ trigger.platform == 'time_pattern' }}"
         sequence:
-          - service: input_boolean.turn_on
-            target:
-              entity_id: !input input_booleans
-  - choose:
+          - choose:
+              - conditions:
+                  - condition: state
+                    entity_id: !input binary_sensors
+                    state: "on"
+                sequence:
+                  - service: input_boolean.turn_on
+                    target:
+                      entity_id: !input input_booleans
+              - conditions:
+                  - condition: state
+                    entity_id: !input binary_sensors
+                    state: "off"
+                sequence: []
       - conditions:
           - condition: state
             entity_id: !input input_booleans
