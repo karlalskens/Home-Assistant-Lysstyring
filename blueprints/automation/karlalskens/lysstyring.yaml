@@ -1,0 +1,85 @@
+blueprint:
+  name: Sensoraktivering av område
+  description: >
+    Ok, så her er greia: Dette "mønstret" (eller hva man nå skal kalle det) sitter og følger med på noen binære sensorer, og så kicker det inn noen input_boolean-sensorer når en av de binære sensorene går fra 0 til 1. Woo-hoo.
+
+    Klokka starter på nytt hvis noen av de binære sensorene får et rykk og går fra 0 til 1 mens klokka tikker. Når tiden er ute, så nullstilles output-sensorene til 0. Hurra.
+
+    Og hvis du gidder å slå av en input_boolean, så stopper klokka og hele automasjonen bare gir opp. The end.
+
+  domain: automation
+  input:
+    binary_sensors:
+      name: Binary Sensors
+      description: List of binary sensors to monitor.
+      selector:
+        entity:
+          domain: binary_sensor
+          multiple: true
+    input_booleans:
+      name: Input Booleans
+      description: List of input_boolean entities to activate.
+      selector:
+        entity:
+          domain: input_boolean
+          multiple: false
+    countdown_time:
+      name: Countdown Time
+      description: Time period for the countdown before deactivating the input_booleans.
+      selector:
+        duration: {}
+    bypass_boolean:
+      name: Bypass Boolean
+      description: Boolean to bypass the automation.
+      selector:
+        entity:
+          domain: input_boolean
+          multiple: false
+
+trigger:
+  - platform: state
+    entity_id: !input binary_sensors
+    from: "off"
+    to: "on"
+  - platform: state
+    entity_id: !input input_booleans
+    from: "on"
+    to: "off"
+
+condition:
+  - condition: state
+    entity_id: !input bypass_boolean
+    state: "off"
+
+action:
+  - choose:
+      - conditions:
+          - condition: template
+            value_template: "{{ trigger.to_state.state == 'on' and trigger.from_state.state == 'off' }}"
+        sequence:
+          - service: input_boolean.turn_on
+            target:
+              entity_id: !input input_booleans
+          - wait_for_trigger:
+              - platform: state
+                entity_id: !input binary_sensors
+                from: "off"
+                to: "on"
+              - platform: state
+                entity_id: !input input_booleans
+                from: "on"
+                to: "off"
+            continue_on_timeout: true
+            timeout: !input countdown_time
+  - choose:
+      - conditions:
+          - condition: state
+            entity_id: !input input_booleans
+            state: "off"
+        sequence: []
+    default:
+      - service: input_boolean.turn_off
+        target:
+          entity_id: !input input_booleans
+
+mode: restart
