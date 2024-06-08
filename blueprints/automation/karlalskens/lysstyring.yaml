@@ -11,26 +11,26 @@ blueprint:
   input:
     binary_sensors:
       name: Binary Sensors
-      description: List of binary sensors to monitor.
+      description: Hvilke bevegelsessensorer skal brukes som triggere?
       selector:
         entity:
           domain: binary_sensor
           multiple: true
     input_booleans:
       name: Input Booleans
-      description: List of input_boolean entities to activate.
+      description: Angi hjelpeverdien for området. Må være en input_boolean som begynner med "tilstede_".
       selector:
         entity:
           domain: input_boolean
           multiple: false
     countdown_time:
       name: Countdown Time
-      description: Time period for the countdown before deactivating the input_booleans.
+      description: Hvor lang tid skal det ta før lyset skal slukkes?
       selector:
         duration: {}
     bypass_boolean:
       name: Bypass Boolean
-      description: Boolean to bypass the automation.
+      description: Hvilken hjelpeverdi skal brukes til å deaktivere styringen?
       selector:
         entity:
           domain: input_boolean
