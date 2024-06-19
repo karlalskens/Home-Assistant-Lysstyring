@@ -23,8 +23,6 @@ input_boolean:
   deaktiver_lysstyring_Område1:
     name: Bevegelse i område 1
     initial: off
-
-
 ```
 
 
