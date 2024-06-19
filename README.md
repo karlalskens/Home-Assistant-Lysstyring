@@ -8,12 +8,12 @@ Dette er et system for å styre lyssoner i Home Assistant. Det kan både styres 
 5. Blueprint for skifte av scener ved soloppgang/-nedgang
 6. Blueprint for oppdatering av treige sensorer
 
-## Opprette Helper-verdier for hvert område
+## Helper-verdier for hvert område
 Opprett hjelpeverdier for hvert område. Dette er variablene som lagrer om et område er aktkivt eller passivt. Dette er også verdier som kan være tilgjengelig for brukerene.
 
 
 
-## Opprette scener for hvert område
+## Scener for hvert område
 
 
 ## Blueprint-automasjon for tidsstyring
