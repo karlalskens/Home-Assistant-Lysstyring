@@ -14,6 +14,20 @@ Opprett hjelpeverdier for hvert område. Dette er variablene som lagrer om et om
 > [!TIP]
 > Hvis noen er tilstede i et område skal det være "aktivt". Hvis det ikke er noen tilstede er området "passivt".
 
+```
+input_boolean:
+  Tilstede_område1:
+    name: Lys på i område 1
+    initial: off
+  deaktiver:
+    name: Bevegelse i område 1
+    initial: off
+    
+    # Repeter for hvert område
+
+```
+
+
 ## Scener for hvert område
 
 
