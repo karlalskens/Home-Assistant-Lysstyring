@@ -24,13 +24,11 @@ input_boolean:
     name: Bevegelse i område 1
     initial: off
 ```
-
-
 ## Scener for hvert område
-
+Opprett scener for hvert område. Må følge navnekonvensjon for å kunne brukes av skriptet under.
 
 ## Blueprint-automasjon for tidsstyring
-
+Denne automasjonen aktiverer og deaktiverer booleanverdien for området. Den trigges av binære sensorer som bevegelsessensorer, og deaktiverer etter angitt tid uten nye impulser.
 
 ## Blueprint-skript for aktivering av scener
 
@@ -39,4 +37,4 @@ input_boolean:
 
 
 ## Blueprint for oppdatering av treige sensorer
-Enkelte typer bevegelsessensorer tar veldig lang tid fra status endres fra Opptatt til Klar. For å kunne bruke den i bevegelsesautomasjoner kan den oversettes til en binærsensor som skifter verdi oftere. Det vil si, den endrer status samtidig med sensoren, og resettes en gang per minutt.
+Enkelte typer bevegelsessensorer tar veldig lang tid fra status endres fra Opptatt til Klar. For å kunne bruke den i bevegelsesautomasjoner kan den oversettes til en binærsensor som skifter verdi oftere. Det vil si, den endrer status samtidig med sensoren, og så lenge sensoren fremdeles er Opptatt veksler en gang per minutt.
