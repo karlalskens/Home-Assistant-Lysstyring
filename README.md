@@ -11,7 +11,8 @@ Dette er et system for å styre lyssoner i Home Assistant. Det kan både styres 
 ## Helper-verdier for hvert område
 Opprett hjelpeverdier for hvert område. Dette er variablene som lagrer om et område er aktkivt eller passivt. Dette er også verdier som kan være tilgjengelig for brukerene.
 
-
+> [!TIP]
+> Hvis noen er tilstede i et område skal det være "aktivt". Hvis det ikke er noen tilstede er området "passivt".
 
 ## Scener for hvert område
 
