@@ -16,14 +16,14 @@ Opprett hjelpeverdier for hvert område. Dette er variablene som lagrer om et om
 
 ```
 input_boolean:
-  Tilstede_område1:
+  # Repeter koden under og bytt ut Område1 med navnet på området, f.eks Stua.
+  Tilstede_Område1:
     name: Lys på i område 1
     initial: off
-  deaktiver:
+  deaktiver_lysstyring_Område1:
     name: Bevegelse i område 1
     initial: off
-    
-    # Repeter for hvert område
+
 
 ```
 
