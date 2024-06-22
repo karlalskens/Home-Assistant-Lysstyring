@@ -57,6 +57,7 @@ action:
           - service: input_boolean.turn_on
             target:
               entity_id: !input input_booleans
+          - delay: !input countdown_time
           - repeat:
               while:
                 - condition: template
