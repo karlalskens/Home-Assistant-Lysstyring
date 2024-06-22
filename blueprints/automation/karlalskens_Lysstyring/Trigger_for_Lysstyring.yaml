@@ -61,14 +61,8 @@ action:
               while:
                 - condition: template
                   value_template: >-
-                    {% set sensors = (binary_sensors | from_yaml) %}
-                    {% set input_boolean = [input_booleans | from_yaml] %}
-                    {% for sensor in sensors + input_boolean %}
-                      {% if is_state(sensor, 'on') %}
-                        {{ false }}
-                      {% endif %}
-                    {% endfor %}
-                    {{ true }}
+                    {% set sensors = expand(binary_sensors) %}
+                    {{ not sensors | selectattr('state', 'eq', 'on') | list | length > 0 }}
               sequence:
                 - delay: !input countdown_time
   - choose:
