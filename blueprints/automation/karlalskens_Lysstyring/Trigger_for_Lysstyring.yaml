@@ -11,7 +11,7 @@ blueprint:
   input:
     input_booleans:
       name: Velg område
-      description: Angi hjelpeverdien for området. Må være en input_boolean som begynner med "tilstede_". Har du ikke en fra før, kan du opprette en.
+      description: Angi hjelpeverdie n for området. Må være en input_boolean som begynner med "tilstede_". Har du ikke en fra før, kan du opprette en.
       selector:
         entity:
           domain: input_boolean
