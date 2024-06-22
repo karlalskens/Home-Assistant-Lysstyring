@@ -74,9 +74,7 @@ action:
                         - condition: template
                           value_template: "{{ states | selectattr('entity_id', 'in', input.binary_sensors) | selectattr('state', 'eq', 'on') | list | length > 0 }}"
                       sequence:
-                        - service: script.restart_countdown
                         - wait_template: "{{ false }}"  # This ensures that the sequence is stopped and restarted.
-          - service: script.start_countdown
   - choose:
       - conditions:
           - condition: state
@@ -88,19 +86,8 @@ action:
         target:
           entity_id: !input input_booleans
 
-script:
-  start_countdown:
-    sequence:
-      - delay: !input countdown_time
-      - service: input_boolean.turn_off
-        target:
-          entity_id: !input input_booleans
-
-  restart_countdown:
-    sequence:
-      - service: script.turn_off
-        target:
-          entity_id: script.start_countdown
-      - service: script.start_countdown
+  - wait_template: "{{ is_state('input_boolean.tilstede', 'off') }}"
+    timeout: !input countdown_time
+    continue_on_timeout: false
 
 mode: restart
