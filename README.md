@@ -36,5 +36,5 @@ Denne automasjonen aktiverer og deaktiverer booleanverdien for området. Den tri
 ## Blueprint for skifte av scener ved soloppgang/-nedgang
 
 
-## Blueprint for oppdatering av treige sensorer
-Enkelte typer bevegelsessensorer tar veldig lang tid fra status endres fra Opptatt til Klar. For å kunne bruke den i bevegelsesautomasjoner kan den oversettes til en binærsensor som skifter verdi oftere. Det vil si, den endrer status samtidig med sensoren, og så lenge sensoren fremdeles er Opptatt veksler en gang per minutt.
+~~## Blueprint for oppdatering av treige sensorer
+Enkelte typer bevegelsessensorer tar veldig lang tid fra status endres fra Opptatt til Klar. For å kunne bruke den i bevegelsesautomasjoner kan den oversettes til en binærsensor som skifter verdi oftere. Det vil si, den endrer status samtidig med sensoren, og så lenge sensoren fremdeles er Opptatt veksler en gang per minutt.~~
