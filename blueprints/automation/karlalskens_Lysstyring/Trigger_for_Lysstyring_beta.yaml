@@ -141,7 +141,7 @@ action:
   - variables:
       sol_hoyde: "{{ state_attr('sun.sun', 'elevation') }}"
       sol_grense: >-
-        {% if is_defined(states(input_grense_for_sol)) and states(input_grense_for_sol) | float != 0 %}
+        {% if states(input_grense_for_sol) | float != 0 %}
           {{ states(input_grense_for_sol) | float }}
         {% else %}
           6
