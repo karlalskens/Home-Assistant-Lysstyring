@@ -53,23 +53,48 @@ blueprint:
         scene_dagtid_aktiv:
           name: Dagtid Aktiv
           description: Når det er dagslys og lyset skal slås på.
-          theme:
+          selector:
+            entity:
+              multiple: true
+              filter:
+              - domain:
+                - scene
         scene_dagtid_passiv:
           name: Dagtid Passiv
           description: Når det er dagslys og lyset skal slås av.
-          theme:
+          selector:
+            entity:
+              multiple: true
+              filter:
+              - domain:
+                - scene
         scene_kveldstid_aktiv:
           name: Kveldstid Aktiv
           description: Når det er kveld/natt og lyset skal slås på.
-          theme:
+          selector:
+            entity:
+              multiple: true
+              filter:
+              - domain:
+                - scene
         scene_kveldstid_passiv:
           name: Kveldstid Passiv
           description: Når det er kveld/natt ute og lyset skal slås av.
-          theme:
+          selector:
+            entity:
+              multiple: true
+              filter:
+              - domain:
+                - scene
         scene_natt_aktiv:
           name: Nattlys Aktiv
           description: Når det er natt og lyset skal slås på lavt.
-          theme:
+          selector:
+            entity:
+              multiple: true
+              filter:
+              - domain:
+                - scene
 trigger:
   - platform: state
     entity_id: !input binary_sensors
