@@ -102,13 +102,34 @@ trigger:
     to: "on"
   - platform: state
     entity_id: !input input_booleans
-    from: "on"
-    to: "off"
 condition:
   - condition: state
     entity_id: !input bypass_boolean
     state: "off"
 action:
+  - variables:
+      tilstede: "{{ states(!input input_booleans) }}"
+      sol_hoyde: "{{ state_attr('sun.sun', 'elevation') }}"
+      sol_grense: "{{ states('input_number.innstilling_for_sol') }}"
+  - variables:
+      aktuell_scene: >-
+        {% set natt_entity = 'scene.' ~ omrade ~ '_nattmodus' %} {% if
+        states[natt_entity] is not none and is_state('input_boolean.nattmodus',
+        'on') %}
+          natt
+        {% else %}
+          {% if tilstede == 'on' and sol_hoyde > sol_grense %}
+            dagtid_aktiv
+          {% elif tilstede == 'off' and sol_hoyde > sol_grense %}
+            dagtid_passiv
+          {% elif tilstede == 'on' and sol_hoyde <= sol_grense %}
+            kveldstid_aktiv
+          {% elif tilstede == 'off' and sol_hoyde <= sol_grense %}
+            kveldstid_passiv
+          {% else %}
+            Aner ikke
+          {% endif %}
+        {% endif %}
   - choose:
       - conditions:
           - condition: template
@@ -117,8 +138,8 @@ action:
           - service: input_boolean.turn_on
             target:
               entity_id: !input input_booleans
-          - delay: !input countdown_time
-          - repeat:
+          - delay: !input countdown_time # Timer som tar tiden.
+          - repeat: # Loop som lar tiden gå til alle sensorer er 'off'.
               while:
                 - condition: template
                   value_template: >-
