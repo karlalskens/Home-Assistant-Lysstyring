@@ -15,14 +15,14 @@ blueprint:
       description: Her setter du opp hvilket område av huset som skal styres. Det kan være et rom, eller en del av et større rom.
       input:
         input_booleans:
-          name: Velg område
+          name: Velg bryteren for området
           description: Angi hjelpeverdien for området. Må være en input_boolean som begynner med "tilstede_". Har du ikke en fra før, kan du opprette en.
           selector:
             entity:
               domain: input_boolean
               multiple: false
         bypass_boolean:
-          name: Velg Variabel som deaktiverer tidsstyringen
+          name: Velg bryteren som deaktiverer tidsstyringen
           description: Hvilken hjelpeverdi skal brukes til å deaktivere styringen?
           selector:
             entity:
@@ -41,10 +41,29 @@ blueprint:
               domain: binary_sensor
               multiple: true
         countdown_time:
-          name: Velg tid
+          name: Velg varighet
           description: Hvor lang tid skal det ta før lyset skal slukkes?
           selector:
             duration: {}
+    dognsyklus_section:
+      name: Sol og døgnsyklus
+      icon: mdi:weather-sunset
+      description: Dette er innstillinger for soloppgang/-nedgang og nattmodus.
+      input:
+        grense_for_sol:
+          name: Grense for Sol
+          description: Hvor lavt over horisonten skal sola være før det går fra dag til kveld? Legg inn en input_number som definerer hvor høyden i grader. Hvis ingen er definert, brukes 6 grader som standard.
+          selector:
+            entity:
+              domain: input_number
+              multiple: false
+        nattmodus_boolean:
+          name: Velg bryteren for Nattmodus
+          description: Angi hjelpeverdien for området. Må være en input_boolean som begynner med "tilstede_". Har du ikke en fra før, kan du opprette en. Angis den ikke, vil ikke nattmodus fungere på dette området.
+          selector:
+            entity:
+              domain: input_boolean
+              multiple: false
     my_section:
       name: Scener
       icon: mdi:palette
@@ -107,27 +126,30 @@ condition:
     entity_id: !input bypass_boolean
     state: "off"
 action:
-  - variables:
-      tilstede: "{{ states('!input input_booleans') }}"
+  - variables: #Definere variabeler fra skjemaet
       sol_hoyde: "{{ state_attr('sun.sun', 'elevation') }}"
-      sol_grense: "{{ states('input_number.innstilling_for_sol') }}"
-  - variables:
+      sol_grense: >-
+        {% if is_defined(states('!input grense_for_sol')) and states('!input grense_for_sol') | float != 0 %}
+          {{ states('!input grense_for_sol') | float }}
+        {% else %}
+          6
+        {% endif %}
+  - variables: #Identifisere hvilken scene som skal kjøres seinere
       aktuell_scene: >-
         {% set natt_entity = 'scene.' ~ omrade ~ '_nattmodus' %} {% if
         states[natt_entity] is not none and is_state('input_boolean.nattmodus',
         'on') %}
-          natt
+          '!input scene_natt_aktiv'
         {% else %}
           {% if tilstede == 'on' and sol_hoyde > sol_grense %}
-            dagtid_aktiv
+            '!input scene_dagtid_aktiv'
           {% elif tilstede == 'off' and sol_hoyde > sol_grense %}
-            dagtid_passiv
+            '!input scene_dagtid_passiv'
           {% elif tilstede == 'on' and sol_hoyde <= sol_grense %}
-            kveldstid_aktiv
+            '!input scene_kveldstid_aktiv'
           {% elif tilstede == 'off' and sol_hoyde <= sol_grense %}
-            kveldstid_passiv
+            '!input scene_kveldstid_passiv'
           {% else %}
-            Aner ikke
           {% endif %}
         {% endif %}
   - choose:
