@@ -9,41 +9,72 @@ blueprint:
   author: Karl Jørgen
   source_url: https://github.com/karlalskens/Home-Assistant-Lysstyring/blob/main/blueprints/automation/karlalskens_Lysstyring/Trigger_for_Lysstyring_beta.yaml
   input:
-    input_booleans:
-      name: Velg område
-      description: Angi hjelpeverdien for området. Må være en input_boolean som begynner med "tilstede_". Har du ikke en fra før, kan du opprette en.
-      selector:
-        entity:
-          domain: input_boolean
-          multiple: false
-    bypass_boolean:
-      name: Velg Variabel som deaktiverer tidsstyringen
-      description: Hvilken hjelpeverdi skal brukes til å deaktivere styringen?
-      selector:
-        entity:
-          domain: input_boolean
-          multiple: false
-    binary_sensors:
-      name: Bevegelsessensorer
-      description: Hvilke bevegelsessensorer skal brukes som triggere?
-      selector:
-        entity:
-          domain: binary_sensor
-          multiple: true
-    countdown_time:
-      name: Velg tid
-      description: Hvor lang tid skal det ta før lyset skal slukkes?
-      selector:
-        duration: {}
-    my_section:
-      name: My Section
-      icon: mdi:cog
-      description: These options control a specific feature of this blueprint
+    omraade_section:
+      name: Område
+      icon: mdi:map-marker
+      description: Her setter du opp hvilket område av huset som skal styres. Det kan være et rom, eller en del av et større rom.
       input:
-        my_input:
-          name: Example input
-        my_input_2:
-          name: 2nd example input
+        input_booleans:
+          name: Velg område
+          description: Angi hjelpeverdien for området. Må være en input_boolean som begynner med "tilstede_". Har du ikke en fra før, kan du opprette en.
+          selector:
+            entity:
+              domain: input_boolean
+              multiple: false
+        bypass_boolean:
+          name: Velg Variabel som deaktiverer tidsstyringen
+          description: Hvilken hjelpeverdi skal brukes til å deaktivere styringen?
+          selector:
+            entity:
+              domain: input_boolean
+              multiple: false
+    sensorer_section:
+      name: Sensorer og tid
+      icon: mdi:motion-sensor
+      description: Her setter du opp hvilket område av huset som skal styres. Det kan være et rom, eller en del av et større rom.
+      input:
+        binary_sensors:
+          name: Bevegelsessensorer
+          description: Hvilke bevegelsessensorer skal brukes som triggere?
+          selector:
+            entity:
+              domain: binary_sensor
+              multiple: true
+        countdown_time:
+          name: Velg tid
+          description: Hvor lang tid skal det ta før lyset skal slukkes?
+          selector:
+            duration: {}
+    my_section:
+      name: Scener
+      icon: mdi:palette
+      description: Vel scenene som skal brukes til lysstyringen
+      input:
+        scene_dagtid_aktiv:
+          name: Dagtid Aktiv
+          description: Når det er dagslys og lyset skal slås på.
+          theme:
+            multiple: true
+        scene_dagtid_passiv:
+          name: Dagtid Passiv
+          description: Når det er dagslys og lyset skal slås av.
+          theme:
+            multiple: false
+        scene_kveldstid_aktiv:
+          name: Kveldstid Aktiv
+          description: Når det er kveld/natt og lyset skal slås på.
+          theme:
+            multiple: false
+        scene_kveldstid_passiv:
+          name: Kveldstid Passiv
+          description: Når det er kveld/natt ute og lyset skal slås av.
+          theme:
+            multiple: false
+        scene_natt_aktiv:
+          name: Nattlys Aktiv
+          description: Når det er natt og lyset skal slås på lavt.
+          theme:
+            multiple: false
 trigger:
   - platform: state
     entity_id: !input binary_sensors
