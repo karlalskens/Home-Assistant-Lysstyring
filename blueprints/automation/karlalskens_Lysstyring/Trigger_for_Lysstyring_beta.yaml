@@ -108,7 +108,7 @@ condition:
     state: "off"
 action:
   - variables:
-      tilstede: "{{ states(!input input_booleans) }}"
+      tilstede: "{{ states('!input input_booleans') }}"
       sol_hoyde: "{{ state_attr('sun.sun', 'elevation') }}"
       sol_grense: "{{ states('input_number.innstilling_for_sol') }}"
   - variables:
