@@ -1,5 +1,5 @@
 blueprint:
-  name: Trigger for lysstyring
+  name: Trigger for lysstyring Beta
   description: >
     Dette er første del av lysstyringen. Det er en automasjon som ved bevegelse får en input_boolean til å slå seg på. Etter en gitt tid uten aktivitet slår den verdien av igjen.
 
@@ -7,7 +7,7 @@ blueprint:
 
   domain: automation
   author: Karl Jørgen
-  source_url: https://github.com/karlalskens/Home-Assistant-Lysstyring/blob/main/blueprints/automation/karlalskens_Lysstyring/Trigger_for_Lysstyring.yaml
+  source_url: https://github.com/karlalskens/Home-Assistant-Lysstyring/blob/main/blueprints/automation/karlalskens_Lysstyring/Trigger_for_Lysstyring_beta.yaml
   input:
     input_booleans:
       name: Velg område
