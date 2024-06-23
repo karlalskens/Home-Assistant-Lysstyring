@@ -177,8 +177,8 @@ action:
               while:
                 - condition: template
                   value_template: >-
-                    {% set sensors = expand(binary_sensors) %}
-                    {{ not sensors | selectattr('state', 'eq', 'on') | list | length > 0 }}
+                    {% set sensors = expand(input_binary_sensors) %}
+                    {{ sensors | selectattr('state', 'eq', 'on') | list | length > 0 }}
               sequence:
                 - delay: !input countdown_time
   - choose:
