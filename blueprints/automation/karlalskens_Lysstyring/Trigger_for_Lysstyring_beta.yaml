@@ -126,32 +126,43 @@ condition:
     entity_id: !input bypass_boolean
     state: "off"
 action:
-  - variables: #Definere variabeler fra skjemaet
+  - variables: #Definerer alle variabler fra skjemaet
+      input_input_booleans: !input input_booleans
+      input_bypass_boolean: !input bypass_boolean
+      input_binary_sensors: !input binary_sensors
+      input_countdown_time: !input countdown_time
+      input_grense_for_sol: !input grense_for_sol
+      input_nattmodus_boolean: !input nattmodus_boolean
+      input_scene_dagtid_aktiv: !input scene_dagtid_aktiv
+      input_scene_dagtid_passiv: !input scene_dagtid_passiv
+      input_scene_kveldstid_aktiv: !input scene_kveldstid_aktiv
+      input_scene_kveldstid_passiv: !input scene_kveldstid_passiv
+      input_scene_natt_aktiv: !input scene_natt_aktiv
+  - variables:
       sol_hoyde: "{{ state_attr('sun.sun', 'elevation') }}"
       sol_grense: >-
-        {% if is_defined(states('!input grense_for_sol')) and states('!input grense_for_sol') | float != 0 %}
-          {{ states('!input grense_for_sol') | float }}
+        {% if is_defined(states(input_grense_for_sol)) and states(input_grense_for_sol) | float != 0 %}
+          {{ states(input_grense_for_sol) | float }}
         {% else %}
           6
         {% endif %}
-  - variables: #Identifisere hvilken scene som skal kjøres seinere
+  - variables: # Identifisere hvilken scene som skal kjøres senere
       aktuell_scene: >-
-        {% set natt_entity = 'scene.' ~ omrade ~ '_nattmodus' %} {% if
-        states[natt_entity] is not none and is_state('input_boolean.nattmodus',
-        'on') %}
-          '!input scene_natt_aktiv'
+        {% if states('input_nattmodus_boolean') is not none and is_state('input_nattmodus_boolean', 'on') %}
+          input_scene_natt_aktiv
         {% else %}
           {% if tilstede == 'on' and sol_hoyde > sol_grense %}
-            '!input scene_dagtid_aktiv'
+            input_scene_dagtid_aktiv
           {% elif tilstede == 'off' and sol_hoyde > sol_grense %}
-            '!input scene_dagtid_passiv'
+            input_scene_dagtid_passiv
           {% elif tilstede == 'on' and sol_hoyde <= sol_grense %}
-            '!input scene_kveldstid_aktiv'
+            input_scene_kveldstid_aktiv
           {% elif tilstede == 'off' and sol_hoyde <= sol_grense %}
-            '!input scene_kveldstid_passiv'
+            input_scene_kveldstid_passiv
           {% else %}
           {% endif %}
         {% endif %}
+
   - choose:
       - conditions:
           - condition: template
