@@ -35,6 +35,15 @@ blueprint:
       description: Hvor lang tid skal det ta før lyset skal slukkes?
       selector:
         duration: {}
+    my_section:
+      name: My Section
+      icon: mdi:cog
+      description: These options control a specific feature of this blueprint
+      input:
+        my_input:
+          name: Example input
+        my_input_2:
+          name: 2nd example input
 trigger:
   - platform: state
     entity_id: !input binary_sensors
