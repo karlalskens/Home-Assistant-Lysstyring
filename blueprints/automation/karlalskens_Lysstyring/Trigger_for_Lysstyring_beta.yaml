@@ -162,8 +162,6 @@ action:
           {% else %}
           {% endif %}
         {% endif %}
-
-
   - choose:
       - conditions:
           - condition: template
