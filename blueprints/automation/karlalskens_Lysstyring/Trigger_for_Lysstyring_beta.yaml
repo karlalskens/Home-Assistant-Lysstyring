@@ -130,20 +130,20 @@ condition:
   - platform: numeric_state
     entity_id: sun.sun
     attribute: elevation
-    above: !input dognsyklus_section.grense_for_sol
+    above: !input grense_for_sol
     id: 'sol_oppgang'
   - platform: numeric_state
     entity_id: sun.sun
     attribute: elevation
-    below: !input dognsyklus_section.grense_for_sol
+    below: !input grense_for_sol
     id: 'sol_nedgang'
   - platform: state
-    entity_id: !input dognsyklus_section.nattmodus_boolean
+    entity_id: !input nattmodus_boolean
     from: "off"
     to: "on"
     id: 'nattmodus_aktivert'
   - platform: state
-    entity_id: !input dognsyklus_section.nattmodus_boolean
+    entity_id: !input nattmodus_boolean
     from: "on"
     to: "off"
     id: 'nattmodus_deaktivert'
