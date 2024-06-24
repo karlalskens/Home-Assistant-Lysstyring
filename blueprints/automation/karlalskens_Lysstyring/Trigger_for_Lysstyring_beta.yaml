@@ -127,6 +127,26 @@ condition:
   - condition: state
     entity_id: !input bypass_boolean
     state: "off"
+  - platform: numeric_state
+    entity_id: sun.sun
+    attribute: elevation
+    above: !input dognsyklus_section.grense_for_sol
+    id: 'sol_oppgang'
+  - platform: numeric_state
+    entity_id: sun.sun
+    attribute: elevation
+    below: !input dognsyklus_section.grense_for_sol
+    id: 'sol_nedgang'
+  - platform: state
+    entity_id: !input dognsyklus_section.nattmodus_boolean
+    from: "off"
+    to: "on"
+    id: 'nattmodus_aktivert'
+  - platform: state
+    entity_id: !input dognsyklus_section.nattmodus_boolean
+    from: "on"
+    to: "off"
+    id: 'nattmodus_deaktivert'
 action:
   - variables: #Definerer alle variabler fra skjemaet
       input_input_booleans: !input input_booleans
@@ -165,7 +185,7 @@ action:
           {% endif %}
         {% endif %}
   - choose:
-      - conditions:
+      - conditions:  
           - condition: template
             value_template: "{{ trigger.to_state.state == 'on' and trigger.from_state.state == 'off' }}"
         sequence:
