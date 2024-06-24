@@ -123,10 +123,6 @@ trigger:
   - platform: state
     entity_id: !input input_booleans
     id: 'område_boolean_endret'
-condition:
-  - condition: state
-    entity_id: !input bypass_boolean
-    state: "off"
   - platform: numeric_state
     entity_id: sun.sun
     attribute: elevation
@@ -147,6 +143,10 @@ condition:
     from: "on"
     to: "off"
     id: 'nattmodus_deaktivert'
+condition:
+  - condition: state
+    entity_id: !input bypass_boolean
+    state: "off"
 action:
   - variables: #Definerer alle variabler fra skjemaet
       input_input_booleans: !input input_booleans
