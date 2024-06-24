@@ -119,8 +119,10 @@ trigger:
     entity_id: !input binary_sensors
     from: "off"
     to: "on"
+    id: 'sensor_utløst'
   - platform: state
     entity_id: !input input_booleans
+    id: 'område_boolean_endret'
 condition:
   - condition: state
     entity_id: !input bypass_boolean
