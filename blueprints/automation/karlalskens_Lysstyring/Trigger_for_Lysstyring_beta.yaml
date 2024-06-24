@@ -115,36 +115,43 @@ blueprint:
               - domain:
                 - scene
 trigger:
-  - platform: state
+  - platform: state #Bevegelsesensor Utløst
     entity_id: !input binary_sensors
     from: "off"
     to: "on"
-    id: 'sensor_utløst'
-  - platform: state
+    id: 'bevegelse_utløst'
+  - platform: state # Område Input_boolean er aktivert
     entity_id: !input input_booleans
-    id: 'område_boolean_endret'
-  - platform: numeric_state
+    from: "off"
+    to: "on"
+    id: 'område_boolean_aktivert'
+  - platform: state # Område Input_boolean er deaktivert
+    entity_id: !input input_booleans
+    from: "on"
+    to: "off"
+    id: 'område_boolean_deaktivert'
+  - platform: numeric_state #Solen har gått opp
     entity_id: sun.sun
     attribute: elevation
     above: !input grense_for_sol
     id: 'sol_oppgang'
-  - platform: numeric_state
+  - platform: numeric_state #Solen har gått ned
     entity_id: sun.sun
     attribute: elevation
     below: !input grense_for_sol
     id: 'sol_nedgang'
-  - platform: state
+  - platform: state #Nattmodus slått på
     entity_id: !input nattmodus_boolean
     from: "off"
     to: "on"
     id: 'nattmodus_aktivert'
-  - platform: state
+  - platform: state #Nattmodus slått av
     entity_id: !input nattmodus_boolean
     from: "on"
     to: "off"
     id: 'nattmodus_deaktivert'
 condition:
-  - condition: state
+  - condition: state #Sjekker om variabel for deaktivering av lysstyring
     entity_id: !input bypass_boolean
     state: "off"
 action:
@@ -161,7 +168,7 @@ action:
       input_scene_kveldstid_passiv: !input scene_kveldstid_passiv
       input_scene_natt_aktiv: !input scene_natt_aktiv
   - variables:
-      sol_hoyde: "{{ state_attr('sun.sun', 'elevation') }}"
+      sol_hoyde: "{{ state_attr('sun.sun', 'elevation') }}" #Finne nåværende høyde
       sol_grense: >-
         {% if states(input_grense_for_sol) | float != 0 %}
           {{ states(input_grense_for_sol) | float }}
@@ -186,10 +193,10 @@ action:
         {% endif %}
   - choose:
       - conditions:  
-          - condition: template
-            value_template: "{{ trigger.to_state.state == 'on' and trigger.from_state.state == 'off' }}"
+          - condition: trigger #Hvis en begelsessensor blir utløst
+            id: 'bevegelse_utløst'
         sequence:
-          - service: input_boolean.turn_on
+          - service: input_boolean.turn_on #Slå på område_boolean
             target:
               entity_id: !input input_booleans
           - delay: !input countdown_time # Timer som tar tiden.
