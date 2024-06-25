@@ -45,6 +45,15 @@ blueprint:
           description: Hvor lang tid skal det ta før lyset skal slukkes?
           selector:
             duration: {}
+        transition_tid:
+          name: Vel overgangstid
+          description: Hvor lang tid skal det ta for lysene til å dimme? Ved problemer - velg 0.
+          number:
+            min: 0
+            max: 6
+            step: 1
+            unit_of_measurement: "s"
+            mode: slider
     dognsyklus_section:
       name: Sol og døgnsyklus
       icon: mdi:weather-sunset
@@ -160,6 +169,7 @@ action:
       input_bypass_boolean: !input bypass_boolean
       input_binary_sensors: !input binary_sensors
       input_countdown_time: !input countdown_time
+      input_transition_tid: !input transition_tid
       input_grense_for_sol: !input grense_for_sol
       input_nattmodus_boolean: !input nattmodus_boolean
       input_scene_dagtid_aktiv: !input scene_dagtid_aktiv
@@ -192,6 +202,15 @@ action:
           {% endif %}
         {% endif %}
   - choose:
+      - conditions:
+        - condition: trigger #Hvis områdets input_boolean blir slått på
+          id: 'område_boolean_aktivert'
+        sequence:
+          - service: scene.turn_on
+            data:
+              transition: !input transition_tid
+            target:
+              entity_id: aktuell_scene
       - conditions:
           - condition: or
             conditions:
