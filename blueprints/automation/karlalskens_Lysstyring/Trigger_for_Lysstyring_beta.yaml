@@ -48,12 +48,13 @@ blueprint:
         transition_tid:
           name: Vel overgangstid
           description: Hvor lang tid skal det ta for lysene til å dimme? Ved problemer - velg 0.
-          number:
-            min: 0
-            max: 6
-            step: 1
-            unit_of_measurement: "s"
-            mode: slider
+          selector:
+            number:
+              min: 0
+              max: 6
+              step: 1
+              unit_of_measurement: "s"
+              mode: slider
     dognsyklus_section:
       name: Sol og døgnsyklus
       icon: mdi:weather-sunset
