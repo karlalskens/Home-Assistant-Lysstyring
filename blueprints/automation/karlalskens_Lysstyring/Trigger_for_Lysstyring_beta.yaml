@@ -189,23 +189,22 @@ action:
   - variables: # Identifisere hvilken scene som skal kjøres senere
       aktuell_scene: >-
         {% if is_state('input_nattmodus_boolean', 'on') %}
-          input_scene_natt_aktiv
+          {{ input_scene_natt_aktiv }}
         {% else %}
-          {% if input_input_booleans == 'on' and sol_hoyde > sol_grense %}
-            input_scene_dagtid_aktiv
-          {% elif input_input_booleans == 'off' and sol_hoyde > sol_grense %}
-            input_scene_dagtid_passiv
-          {% elif input_input_booleans == 'on' and sol_hoyde <= sol_grense %}
-            input_scene_kveldstid_aktiv
-          {% elif input_input_booleans == 'off' and sol_hoyde <= sol_grense %}
-            input_scene_kveldstid_passiv
-          {% else %}
+          {% if is_state(input_input_booleans, 'on') and sol_hoyde > sol_grense %}
+            {{ input_scene_dagtid_aktiv }}
+          {% elif is_state(input_input_booleans, 'off') and sol_hoyde > sol_grense %}
+            {{ input_scene_dagtid_passiv }}
+          {% elif is_state(input_input_booleans, 'on') and sol_hoyde <= sol_grense %}
+            {{ input_scene_kveldstid_aktiv }}
+          {% elif is_state(input_input_booleans, 'off') and sol_hoyde <= sol_grense %}
+            {{ input_scene_kveldstid_passiv }}
           {% endif %}
         {% endif %}
   - choose:
       - conditions:
         - condition: trigger #Hvis områdets input_boolean blir slått på
-          id: 'område_boolean_aktivert'
+          id: område_boolean_aktivert
         sequence:
           - service: scene.turn_on
             data:
@@ -216,9 +215,9 @@ action:
           - condition: or
             conditions:
               - condition: trigger #Hvis en begelsessensor blir utløst
-                id: "bevegelse_utløst"
+                id: bevegelse_utløst
               - condition: trigger #Hvis områdets input_boolean blir slått på
-                id: "område_boolean_aktivert"
+                id: område_boolean_aktivert
         sequence:
           - choose: #Hvis input_boolean er av
               - conditions:
