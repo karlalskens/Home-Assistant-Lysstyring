@@ -195,14 +195,22 @@ action:
       - conditions:  
           - condition: trigger #Hvis en begelsessensor blir utløst
             id: 'bevegelse_utløst'
+          - condition: trigger #Hvis områdets input_boolean blir slått på
+            id: 'område_boolean_aktivert'
         sequence:
-          - service: input_boolean.turn_on #Slå på område_boolean
-            target:
-              entity_id: !input input_booleans
-          - delay: !input countdown_time # Timer som tar tiden.
+          - choose: #Hvis input_boolean er av
+              - conditions:
+                  - condition: state
+                    entity_id: !input input_booleans
+                    state: "off"
+                sequence:
+                  - service: input_boolean.turn_on #Slå på område_boolean
+                    target:
+                      entity_id: !input input_booleans
+          - delay: !input countdown_time # La tiden gå!
           - repeat: # Loop som lar tiden gå til alle sensorer er 'off'.
               while:
-                - condition: template
+                - condition: template #Hvis noen av sensorene fremdeles er on, skal tiden restartes. Løser typisk problem med IKEA-sensorer.
                   value_template: >-
                     {% set sensors = expand(input_binary_sensors) %}
                     {{ sensors | selectattr('state', 'eq', 'on') | list | length > 0 }}
