@@ -191,13 +191,13 @@ action:
         {% if is_state('input_nattmodus_boolean', 'on') %}
           input_scene_natt_aktiv
         {% else %}
-          {% if tilstede == 'on' and sol_hoyde > sol_grense %}
+          {% if input_input_booleans == 'on' and sol_hoyde > sol_grense %}
             input_scene_dagtid_aktiv
-          {% elif tilstede == 'off' and sol_hoyde > sol_grense %}
+          {% elif input_input_booleans == 'off' and sol_hoyde > sol_grense %}
             input_scene_dagtid_passiv
-          {% elif tilstede == 'on' and sol_hoyde <= sol_grense %}
+          {% elif input_input_booleans == 'on' and sol_hoyde <= sol_grense %}
             input_scene_kveldstid_aktiv
-          {% elif tilstede == 'off' and sol_hoyde <= sol_grense %}
+          {% elif input_input_booleans == 'off' and sol_hoyde <= sol_grense %}
             input_scene_kveldstid_passiv
           {% else %}
           {% endif %}
@@ -216,9 +216,9 @@ action:
           - condition: or
             conditions:
               - condition: trigger #Hvis en begelsessensor blir utløst
-                id: 'bevegelse_utløst'
+                id: "bevegelse_utløst"
               - condition: trigger #Hvis områdets input_boolean blir slått på
-                id: 'område_boolean_aktivert'
+                id: "område_boolean_aktivert"
         sequence:
           - choose: #Hvis input_boolean er av
               - conditions:
