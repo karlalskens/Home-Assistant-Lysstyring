@@ -211,7 +211,7 @@ action:
             data:
               transition: !input transition_tid
             target:
-              entity_id: aktuell_scene
+              entity_id: "{{ aktuell_scene }}"
       - conditions:
           - condition: or
             conditions:
