@@ -203,25 +203,27 @@ action:
             none
           {% endif %}
         {% endif %}
-  - condition: not
-    conditions:
-      - condition: or
-        conditions:
-          - condition: trigger #Alt annet enn hvis bevegelse blir oppdaget
-            id: bevegelse_utløst
-          - condition: template
-            value_template: "{{ aktuell_scene == 'none' }}"
-    sequence: #Kjør rett scene
-      - service: scene.turn_on
-        data:
-          transition: "{{ input_transition_tid }}"
-        target:
-          entity_id: "{{ aktuell_scene }}"
+  - choose:
+      - conditions:
+          - condition: not
+            conditions:
+              - condition: or
+                conditions:
+                  - condition: trigger #Alt annet enn hvis bevegelse blir oppdaget
+                    id: bevegelse_utløst
+                  - condition: template
+                    value_template: "{{ aktuell_scene == 'none' }}"
+        sequence: #Kjør rett scene
+          - service: scene.turn_on
+            data:
+              transition: "{{ input_transition_tid }}"
+            target:
+              entity_id: "{{ aktuell_scene }}"
   - choose:
       - conditions:
           - condition: or
             conditions:
-              - condition: trigger #Hvis en begelsessensor blir utløst
+              - condition: trigger #Hvis en bevegelsessensor blir utløst
                 id: bevegelse_utløst
               - condition: trigger #Hvis områdets input_boolean blir slått på
                 id: område_boolean_aktivert
@@ -236,8 +238,8 @@ action:
                     target:
                       entity_id: !input input_booleans
               - conditions:
-                - condition: trigger #Hvis områdets input_boolean blir slått på
-                  id: område_boolean_aktivert
+                  - condition: trigger #Hvis områdets input_boolean blir slått på
+                    id: område_boolean_aktivert
                 sequence: []
           - delay: !input countdown_time # La tiden gå!
           - repeat: # Loop som lar tiden gå til alle sensorer er 'off'.
