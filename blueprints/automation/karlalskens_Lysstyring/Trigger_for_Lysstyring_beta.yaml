@@ -212,6 +212,15 @@ action:
             target:
               entity_id: "{{ aktuell_scene }}"
       - conditions:
+        - condition: trigger #Hvis områdets input_boolean blir slått av
+          id: område_boolean_deaktivert
+        sequence:
+          - service: scene.turn_off
+            data:
+              transition: !input transition_tid
+            target:
+              entity_id: "{{ aktuell_scene }}"
+      - conditions:
           - condition: or
             conditions:
               - condition: trigger #Hvis en begelsessensor blir utløst
