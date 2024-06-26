@@ -199,13 +199,19 @@ action:
             {{ input_scene_kveldstid_aktiv }}
           {% elif is_state(input_input_booleans, 'off') and sol_hoyde <= sol_grense %}
             {{ input_scene_kveldstid_passiv }}
+          {% else %}
+            {{Aner ikke}}
           {% endif %}
         {% endif %}
   - conditions: #Hvis det trengs å oppdatere lys
       - condition: not
         conditions:
-          - condition: trigger #Alt annet enn hvis bevegelse blir oppdaget
-            id: bevegelse_utløst
+          - condition: or
+            conditions:
+              - condition: trigger #Alt annet enn hvis bevegelse blir oppdaget
+                id: bevegelse_utløst
+              - condition: template
+                value_template: "{{ aktuell_scene == 'Aner ikke' }}"
     sequence: #Kjør rett scene
       - service: scene.turn_on
         data:
