@@ -203,15 +203,14 @@ action:
             none
           {% endif %}
         {% endif %}
-  - conditions: #Hvis det trengs å oppdatere lys
-      - condition: not
+  - condition: not
+    conditions:
+      - condition: or
         conditions:
-          - condition: or
-            conditions:
-              - condition: trigger #Alt annet enn hvis bevegelse blir oppdaget
-                id: bevegelse_utløst
-              - condition: template
-                value_template: "{{ aktuell_scene == 'none' }}"
+          - condition: trigger #Alt annet enn hvis bevegelse blir oppdaget
+            id: bevegelse_utløst
+          - condition: template
+            value_template: "{{ aktuell_scene == 'none' }}"
     sequence: #Kjør rett scene
       - service: scene.turn_on
         data:
