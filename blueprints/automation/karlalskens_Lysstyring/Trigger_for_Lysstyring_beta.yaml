@@ -201,16 +201,18 @@ action:
             {{ input_scene_kveldstid_passiv }}
           {% endif %}
         {% endif %}
+  - conditions: #Hvis det trengs å oppdatere lys
+      - condition: not
+        conditions:
+          - condition: trigger #Alt annet enn hvis bevegelse blir oppdaget
+            id: bevegelse_utløst
+    sequence: #Kjør rett scene
+      - service: scene.turn_on
+        data:
+          transition: "{{ input_transition_tid }}"
+        target:
+          entity_id: "{{ aktuell_scene }}"
   - choose:
-      - conditions:
-        - condition: trigger #Hvis områdets input_boolean blir slått av
-          id: område_boolean_deaktivert
-        sequence:
-          - service: scene.turn_on
-            data:
-              transition: !input transition_tid
-            target:
-              entity_id: "{{ aktuell_scene }}"
       - conditions:
           - condition: or
             conditions:
@@ -231,12 +233,7 @@ action:
               - conditions:
                 - condition: trigger #Hvis områdets input_boolean blir slått på
                   id: område_boolean_aktivert
-                sequence:
-                  - service: scene.turn_on
-                    data:
-                      transition: !input transition_tid
-                    target:
-                      entity_id: "{{ aktuell_scene }}"
+                sequence: []
           - delay: !input countdown_time # La tiden gå!
           - repeat: # Loop som lar tiden gå til alle sensorer er 'off'.
               while:
