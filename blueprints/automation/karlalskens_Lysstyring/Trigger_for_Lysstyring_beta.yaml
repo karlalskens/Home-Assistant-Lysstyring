@@ -191,17 +191,17 @@ action:
           Debug: input_nattmodus_boolean is on
           {{ input_scene_natt_aktiv }}
         {% else %}
-          {% if is_state(states(input_input_booleans), 'on') and sol_hoyde > sol_grense %}
-            Debug: {{ states(input_input_booleans) }} is on and sol_hoyde > sol_grense
+          {% if is_state(input_input_booleans, 'on') and sol_hoyde > sol_grense %}
+            Debug: {{ input_input_booleans }} is on and sol_hoyde > sol_grense
             {{ input_scene_dagtid_aktiv }}
-          {% elif is_state(states(input_input_booleans), 'off') and sol_hoyde > sol_grense %}
-            Debug: {{ states(input_input_booleans) }} is off and sol_hoyde > sol_grense
+          {% elif is_state(input_input_booleans, 'off') and sol_hoyde > sol_grense %}
+            Debug: {{ input_input_booleans }} is off and sol_hoyde > sol_grense
             {{ input_scene_dagtid_passiv }}
-          {% elif is_state(states(input_input_booleans), 'on') and sol_hoyde <= sol_grense %}
-            Debug: {{ states(input_input_booleans) }} is on and sol_hoyde <= sol_grense
+          {% elif is_state(input_input_booleans, 'on') and sol_hoyde <= sol_grense %}
+            Debug: {{ input_input_booleans }} is on and sol_hoyde <= sol_grense
             {{ input_scene_kveldstid_aktiv }}
-          {% elif is_state(states(input_input_booleans), 'off') and sol_hoyde <= sol_grense %}
-            Debug: {{ states(input_input_booleans) }} is off and sol_hoyde <= sol_grense
+          {% elif is_state(input_input_booleans, 'off') and sol_hoyde <= sol_grense %}
+            Debug: {{ input_input_booleans }} is off and sol_hoyde <= sol_grense
             {{ input_scene_kveldstid_passiv }}
           {% else %}
             Debug: None of the conditions were met
