@@ -188,7 +188,7 @@ action:
         {% endif %}
   - variables: # Identifisere hvilken scene som skal kjøres senere
       aktuell_scene: >-
-        {% if is_state('input_nattmodus_boolean', 'on') %}
+        {% if is_state(input_nattmodus_boolean, 'on') %}
           {{ input_scene_natt_aktiv }}
         {% else %}
           {% if is_state(input_input_booleans, 'on') and sol_hoyde > sol_grense %}
