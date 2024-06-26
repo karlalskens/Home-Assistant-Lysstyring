@@ -215,7 +215,7 @@ action:
         - condition: trigger #Hvis områdets input_boolean blir slått av
           id: område_boolean_deaktivert
         sequence:
-          - service: scene.turn_off
+          - service: scene.turn_on
             data:
               transition: !input transition_tid
             target:
