@@ -203,15 +203,6 @@ action:
         {% endif %}
   - choose:
       - conditions:
-        - condition: trigger #Hvis områdets input_boolean blir slått på
-          id: område_boolean_aktivert
-        sequence:
-          - service: scene.turn_on
-            data:
-              transition: !input transition_tid
-            target:
-              entity_id: "{{ aktuell_scene }}"
-      - conditions:
         - condition: trigger #Hvis områdets input_boolean blir slått av
           id: område_boolean_deaktivert
         sequence:
@@ -237,6 +228,15 @@ action:
                   - service: input_boolean.turn_on #Slå på område_boolean
                     target:
                       entity_id: !input input_booleans
+              - conditions:
+                - condition: trigger #Hvis områdets input_boolean blir slått på
+                  id: område_boolean_aktivert
+                sequence:
+                  - service: scene.turn_on
+                    data:
+                      transition: !input transition_tid
+                    target:
+                      entity_id: "{{ aktuell_scene }}"
           - delay: !input countdown_time # La tiden gå!
           - repeat: # Loop som lar tiden gå til alle sensorer er 'off'.
               while:
