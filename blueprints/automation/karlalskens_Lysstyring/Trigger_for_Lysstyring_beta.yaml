@@ -250,14 +250,7 @@ action:
                     {{ sensors | selectattr('state', 'eq', 'on') | list | length > 0 }}
               sequence:
                 - delay: !input countdown_time
-  - choose:
-      - conditions:
-          - condition: state
-            entity_id: !input input_booleans
-            state: "off"
-        sequence: []
-    default:
-      - service: input_boolean.turn_off
-        target:
-          entity_id: !input input_booleans
+          - service: input_boolean.turn_off
+            target:
+              entity_id: !input input_booleans
 mode: restart
