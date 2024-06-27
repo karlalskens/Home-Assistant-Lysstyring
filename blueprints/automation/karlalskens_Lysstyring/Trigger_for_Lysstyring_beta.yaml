@@ -122,6 +122,7 @@ blueprint:
               filter:
               - domain:
                 - scene
+            default: null
 trigger:
   - platform: state #Bevegelsesensor Utløst
     entity_id: !input binary_sensors
