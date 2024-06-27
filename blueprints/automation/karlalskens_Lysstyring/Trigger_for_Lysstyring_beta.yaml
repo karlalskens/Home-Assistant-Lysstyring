@@ -7,7 +7,7 @@ blueprint:
   author: Karl Jørgen
   source_url: https://github.com/karlalskens/Home-Assistant-Lysstyring/blob/main/blueprints/automation/karlalskens_Lysstyring/Trigger_for_Lysstyring_beta.yaml
   homeassistant:
-    min_version: '2024.6'
+    min_version: '2024.6.4'
   input:
     omraade_section:
       name: Område
