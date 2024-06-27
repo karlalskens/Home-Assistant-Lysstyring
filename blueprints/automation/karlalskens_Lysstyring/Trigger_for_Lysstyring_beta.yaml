@@ -1,9 +1,7 @@
 blueprint:
   name: Trigger for lysstyring Beta
   description: >
-    Dette er første del av lysstyringen. Det er en automasjon som ved bevegelse får en input_boolean til å slå seg på. Etter en gitt tid uten aktivitet slår den verdien av igjen.
-
-    For at dette skal fungere må scener aktiveres av denne verdien.
+    Dette er en automasjon som styrer lys automatisk basert med bevegelsessensorer og dagslys.
 
   domain: automation
   author: Karl Jørgen
@@ -69,7 +67,7 @@ blueprint:
               multiple: false
         nattmodus_boolean:
           name: Velg bryteren for Nattmodus
-          description: Angi hjelpeverdien for området. Må være en input_boolean som begynner med "tilstede_". Har du ikke en fra før, kan du opprette en. Angis den ikke, vil ikke nattmodus fungere på dette området.
+          description: Angi hjelpeverdien for området. Må være en input_boolean. Har du ikke en fra før, kan du opprette en. Angis den ikke, vil ikke nattmodus fungere på dette området.
           selector:
             entity:
               domain: input_boolean
