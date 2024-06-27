@@ -73,9 +73,9 @@ blueprint:
               domain: input_boolean
               multiple: false
     my_section:
-      name: Scener
-      icon: mdi:palette
-      description: Vel scenene som skal brukes til lysstyringen
+      name: Lys og Scener
+      icon: mdi:lamps
+      description: Vel scenene som skal brukes til lysstyringen. Scenene kan også inneholde innstillinger for andre enheter, som TV, garasjedør, osv.
       input:
         scene_dagtid_aktiv:
           name: Dagtid Aktiv
