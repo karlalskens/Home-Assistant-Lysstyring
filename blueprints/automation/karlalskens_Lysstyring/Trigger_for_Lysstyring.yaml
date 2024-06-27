@@ -1,79 +1,252 @@
 blueprint:
   name: Trigger for lysstyring
   description: >
-    Dette er første del av lysstyringen. Det er en automasjon som ved bevegelse får en input_boolean til å slå seg på. Etter en gitt tid uten aktivitet slår den verdien av igjen.
-
-    For at dette skal fungere må scener aktiveres av denne verdien.
-
+    Dette er en automasjon som styrer lys automatisk basert med bevegelsessensorer og dagslys.
   domain: automation
   author: Karl Jørgen
   source_url: https://github.com/karlalskens/Home-Assistant-Lysstyring/blob/main/blueprints/automation/karlalskens_Lysstyring/Trigger_for_Lysstyring.yaml
+  homeassistant:
+    min_version: '2024.6.4'
   input:
-    input_booleans:
-      name: Velg område
-      description: Angi hjelpeverdien for området. Må være en input_boolean som begynner med "tilstede_". Har du ikke en fra før, kan du opprette en.
-      selector:
-        entity:
-          domain: input_boolean
-          multiple: false
-    bypass_boolean:
-      name: Velg Variabel som deaktiverer tidsstyringen
-      description: Hvilken hjelpeverdi skal brukes til å deaktivere styringen?
-      selector:
-        entity:
-          domain: input_boolean
-          multiple: false
-    binary_sensors:
-      name: Bevegelsessensorer
-      description: Hvilke bevegelsessensorer skal brukes som triggere?
-      selector:
-        entity:
-          domain: binary_sensor
-          multiple: true
-    countdown_time:
-      name: Velg tid
-      description: Hvor lang tid skal det ta før lyset skal slukkes?
-      selector:
-        duration: {}
+    omraade_section:
+      name: Område
+      icon: mdi:map-marker
+      description: Her setter du opp hvilket område av huset som skal styres. Det kan være et rom, eller en del av et større rom.
+      input:
+        input_booleans:
+          name: Velg bryteren for området
+          description: Angi hjelpeverdien for området. Må være en input_boolean som begynner med "tilstede_". Har du ikke en fra før, kan du opprette en.
+          selector:
+            entity:
+              domain: input_boolean
+              multiple: false
+        bypass_boolean:
+          name: Velg bryteren som deaktiverer tidsstyringen
+          description: Hvilken hjelpeverdi skal brukes til å deaktivere styringen?
+          selector:
+            entity:
+              domain: input_boolean
+              multiple: false
+    sensorer_section:
+      name: Sensorer og tid
+      icon: mdi:motion-sensor
+      description: Her setter du opp hvilket område av huset som skal styres. Det kan være et rom, eller en del av et større rom.
+      input:
+        binary_sensors:
+          name: Bevegelsessensorer
+          description: Hvilke bevegelsessensorer skal brukes som triggere?
+          selector:
+            entity:
+              domain: binary_sensor
+              multiple: true
+        countdown_time:
+          name: Velg varighet
+          description: Hvor lang tid skal det ta før lyset skal slukkes?
+          selector:
+            duration: {}
+        transition_tid:
+          name: Vel overgangstid
+          description: Hvor lang tid skal det ta for lysene til å dimme? Ved problemer - velg 0.
+          selector:
+            number:
+              min: 0
+              max: 6
+              step: 1
+              unit_of_measurement: "s"
+              mode: slider
+    dognsyklus_section:
+      name: Sol og døgnsyklus
+      icon: mdi:weather-sunset
+      description: Dette er innstillinger for soloppgang/-nedgang og nattmodus.
+      input:
+        grense_for_sol:
+          name: Grense for Sol
+          description: Hvor lavt over horisonten skal sola være før det går fra dag til kveld? Legg inn en input_number som definerer hvor høyden i grader. Hvis ingen er definert, brukes 6 grader som standard.
+          selector:
+            entity:
+              domain: input_number
+              multiple: false
+        nattmodus_boolean:
+          name: Velg bryteren for Nattmodus
+          description: Angi hjelpeverdien for området. Må være en input_boolean. Har du ikke en fra før, kan du opprette en. Angis den ikke, vil ikke nattmodus fungere på dette området.
+          selector:
+            entity:
+              domain: input_boolean
+              multiple: false
+    my_section:
+      name: Lys og Scener
+      icon: mdi:lamps
+      description: Vel scenene som skal brukes til lysstyringen. Scenene kan også inneholde innstillinger for andre enheter, som TV, garasjedør, osv.
+      input:
+        scene_dagtid_aktiv:
+          name: Dagtid Aktiv
+          description: Når det er dagslys og lyset skal slås på.
+          selector:
+            entity:
+              multiple: true
+              filter:
+              - domain:
+                - scene
+        scene_dagtid_passiv:
+          name: Dagtid Passiv
+          description: Når det er dagslys og lyset skal slås av.
+          selector:
+            entity:
+              multiple: true
+              filter:
+              - domain:
+                - scene
+        scene_kveldstid_aktiv:
+          name: Kveldstid Aktiv
+          description: Når det er kveld/natt og lyset skal slås på.
+          selector:
+            entity:
+              multiple: true
+              filter:
+              - domain:
+                - scene
+        scene_kveldstid_passiv:
+          name: Kveldstid Passiv
+          description: Når det er kveld/natt ute og lyset skal slås av.
+          selector:
+            entity:
+              multiple: true
+              filter:
+              - domain:
+                - scene
+        scene_natt_aktiv:
+          name: Nattlys Aktiv
+          description: Når det er natt og lyset skal slås på lavt.
+          selector:
+            entity:
+              multiple: true
+              filter:
+              - domain:
+                - scene
 trigger:
-  - platform: state
+  - platform: state #Bevegelsesensor Utløst
     entity_id: !input binary_sensors
     from: "off"
     to: "on"
-  - platform: state
+    id: 'bevegelse_utløst'
+  - platform: state # Område Input_boolean er aktivert
+    entity_id: !input input_booleans
+    from: "off"
+    to: "on"
+    id: 'område_boolean_aktivert'
+  - platform: state # Område Input_boolean er deaktivert
     entity_id: !input input_booleans
     from: "on"
     to: "off"
+    id: 'område_boolean_deaktivert'
+  - platform: numeric_state #Solen har gått opp
+    entity_id: sun.sun
+    attribute: elevation
+    above: !input grense_for_sol
+    id: 'sol_oppgang'
+  - platform: numeric_state #Solen har gått ned
+    entity_id: sun.sun
+    attribute: elevation
+    below: !input grense_for_sol
+    id: 'sol_nedgang'
+  - platform: state #Nattmodus slått på
+    entity_id: !input nattmodus_boolean
+    from: "off"
+    to: "on"
+    id: 'nattmodus_aktivert'
+  - platform: state #Nattmodus slått av
+    entity_id: !input nattmodus_boolean
+    from: "on"
+    to: "off"
+    id: 'nattmodus_deaktivert'
 condition:
-  - condition: state
+  - condition: state #Sjekker om variabel for deaktivering av lysstyring
     entity_id: !input bypass_boolean
     state: "off"
 action:
+  - variables: #Definerer alle variabler fra skjemaet
+      input_input_booleans: !input input_booleans
+      input_bypass_boolean: !input bypass_boolean
+      input_binary_sensors: !input binary_sensors
+      input_countdown_time: !input countdown_time
+      input_transition_tid: !input transition_tid
+      input_grense_for_sol: !input grense_for_sol
+      input_nattmodus_boolean: !input nattmodus_boolean
+      input_scene_dagtid_aktiv: !input scene_dagtid_aktiv
+      input_scene_dagtid_passiv: !input scene_dagtid_passiv
+      input_scene_kveldstid_aktiv: !input scene_kveldstid_aktiv
+      input_scene_kveldstid_passiv: !input scene_kveldstid_passiv
+      input_scene_natt_aktiv: !input scene_natt_aktiv
+      sol_hoyde: "{{ state_attr('sun.sun', 'elevation') }}" #Finne nåværende høyde
+      sol_grense: >-
+        {% if states(input_grense_for_sol) | float != 0 %}
+          {{ states(input_grense_for_sol) | float }}
+        {% else %}
+          6
+        {% endif %}
+  - variables:
+      aktuell_scene: |-
+        {% if is_state(input_nattmodus_boolean, 'on') %}
+          Debug: input_nattmodus_boolean is on
+          {{ input_scene_natt_aktiv }}
+        {% else %}
+          {% if is_state(input_input_booleans, 'on') and sol_hoyde > sol_grense %}
+            {{ input_scene_dagtid_aktiv }}
+          {% elif is_state(input_input_booleans, 'off') and sol_hoyde > sol_grense %}
+            {{ input_scene_dagtid_passiv }}
+          {% elif is_state(input_input_booleans, 'on') and sol_hoyde <= sol_grense %}
+            {{ input_scene_kveldstid_aktiv }}
+          {% elif is_state(input_input_booleans, 'off') and sol_hoyde <= sol_grense %}
+            {{ input_scene_kveldstid_passiv }}
+          {% else %}
+            none
+          {% endif %}
+        {% endif %}
   - choose:
       - conditions:
-          - condition: template
-            value_template: "{{ trigger.to_state.state == 'on' and trigger.from_state.state == 'off' }}"
-        sequence:
-          - service: input_boolean.turn_on
+          - condition: not
+            conditions:
+              - condition: or
+                conditions:
+                  - condition: trigger #Alt annet enn hvis bevegelse blir oppdaget
+                    id: bevegelse_utløst
+                  - condition: template
+                    value_template: "{{ aktuell_scene == 'none' }}"
+        sequence: #Kjør rett scene
+          - service: scene.turn_on
+            data:
+              transition: "{{ input_transition_tid }}"
             target:
-              entity_id: !input input_booleans
-          - delay: !input countdown_time
-          - repeat:
+              entity_id: "{{ aktuell_scene }}"
+  - choose:
+      - conditions:
+          - condition: or
+            conditions:
+              - condition: trigger #Hvis en bevegelsessensor blir utløst
+                id: bevegelse_utløst
+              - condition: state #Hvis områdets input_boolean blir slått på
+                entity_id: !input input_booleans
+                state: "on"
+        sequence:
+          - choose: #Hvis input_boolean er av
+              - conditions:
+                  - condition: state
+                    entity_id: !input input_booleans
+                    state: "off"
+                sequence:
+                  - service: input_boolean.turn_on #Slå på område_boolean
+                    target:
+                      entity_id: !input input_booleans
+          - delay: !input countdown_time # La tiden gå!
+          - repeat: # Loop som lar tiden gå til alle sensorer er 'off'.
               while:
-                - condition: template
+                - condition: template #Hvis noen av sensorene fremdeles er on, skal tiden restartes. Løser typisk problem med IKEA-sensorer.
                   value_template: >-
-                    {% set sensors = expand(binary_sensors) %}
-                    {{ not sensors | selectattr('state', 'eq', 'on') | list | length > 0 }}
+                    {% set sensors = expand(input_binary_sensors) %}
+                    {{ sensors | selectattr('state', 'eq', 'on') | list | length > 0 }}
               sequence:
                 - delay: !input countdown_time
-  - choose:
-      - conditions:
-          - condition: state
-            entity_id: !input input_booleans
-            state: "off"
-        sequence: []
-    default:
-      - service: input_boolean.turn_off
-        target:
-          entity_id: !input input_booleans
+          - service: input_boolean.turn_off
+            target:
+              entity_id: !input input_booleans
 mode: restart
