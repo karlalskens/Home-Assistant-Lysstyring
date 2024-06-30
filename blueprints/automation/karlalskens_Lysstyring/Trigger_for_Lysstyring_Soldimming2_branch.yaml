@@ -1,10 +1,10 @@
 blueprint:
-  name: Trigger for lysstyring
+  name: Trigger for lysstyring Soldimming2_branch
   description: >
     Dette er en automasjon som styrer lys automatisk basert med bevegelsessensorer og dagslys.
   domain: automation
   author: Karl Jørgen
-  source_url: https://github.com/karlalskens/Home-Assistant-Lysstyring/blob/main/blueprints/automation/karlalskens_Lysstyring/Trigger_for_Lysstyring.yaml
+  source_url: https://github.com/karlalskens/Home-Assistant-Lysstyring/blob/dev_soldimming2/blueprints/automation/karlalskens_Lysstyring/Trigger_for_Lysstyring_Soldimming2_branch.yaml
   homeassistant:
     min_version: '2024.6.4'
   input:
@@ -42,11 +42,13 @@ blueprint:
         countdown_time:
           name: Velg varighet
           description: Hvor lang tid skal det ta før lyset skal slukkes?
+          default: '00:45:00'
           selector:
             duration: {}
-        transition_tid:
-          name: Vel overgangstid
-          description: Hvor lang tid skal det ta for lysene til å dimme? Ved problemer - velg 0.
+        bevegelse_transition_tid:
+          name: Vel overgangstid for bevegelse
+          description: Hvor lang tid skal det ta for lysene til å dimme når systemet oppdager en bevegelse? Ved problemer - velg 0.
+          default: 1
           selector:
             number:
               min: 0
@@ -54,26 +56,31 @@ blueprint:
               step: 1
               unit_of_measurement: "s"
               mode: slider
+        sol_transition_tid:
+          name: Vel overgangstid for døgnsyklus
+          description: Hvor lang tid skal det ta for lysene til å dimme når solen går opp eller ned? Ved problemer - velg 0.
+          default: 20
+          selector:
+            number:
+              min: 0
+              max: 30
+              step: 1
+              unit_of_measurement: "s"
+              mode: slider
     dognsyklus_section:
       name: Sol og døgnsyklus
       icon: mdi:weather-sunset
-      description: Dette er innstillinger for soloppgang/-nedgang og nattmodus.
+      description: Dette er innstillinger for soloppgang/-nedgang.
       input:
         grense_for_sol:
           name: Grense for Sol
           description: Hvor lavt over horisonten skal sola være før det går fra dag til kveld? Legg inn en input_number som definerer hvor høyden i grader. Hvis ingen er definert, brukes 6 grader som standard.
+          default: 6
           selector:
             entity:
               domain: input_number
               multiple: false
-        nattmodus_boolean:
-          name: Velg bryteren for Nattmodus
-          description: Angi hjelpeverdien for området. Må være en input_boolean. Har du ikke en fra før, kan du opprette en. Angis den ikke, vil ikke nattmodus fungere på dette området.
-          selector:
-            entity:
-              domain: input_boolean
-              multiple: false
-    my_section:
+    scener_section:
       name: Lys og Scener
       icon: mdi:lamps
       description: Vel scenene som skal brukes til lysstyringen. Scenene kan også inneholde innstillinger for andre enheter, som TV, garasjedør, osv.
@@ -114,9 +121,30 @@ blueprint:
               filter:
               - domain:
                 - scene
+    nattmodus_section:
+      name: Nattmodus (Valgfritt)
+      icon: mdi:weather-night
+      description: Dette er innstillinger for nattmodus. Når denne er aktiv, så vil lyset gå til en annen scene når området blir aktivt. Man kan også angi en annen tidsvarighet.
+      collapsed: true
+      input:
+        nattmodus_boolean:
+          name: Velg bryteren for Nattmodus
+          description: Angi hjelpeverdien for området. Må være en input_boolean. Har du ikke en fra før, kan du opprette en. Angis den ikke, vil ikke nattmodus fungere på dette området.
+          default:
+          selector:
+            entity:
+              domain: input_boolean
+              multiple: false
+        natt_countdown_time:
+          name: Velg varighet
+          description: Hvor lang tid skal det ta før lyset skal slukkes?
+          default: '00:01:00'
+          selector:
+            duration: {}
         scene_natt_aktiv:
           name: Nattlys Aktiv
           description: Når det er natt og lyset skal slås på lavt.
+          default: []
           selector:
             entity:
               multiple: true
@@ -169,14 +197,18 @@ action:
       input_bypass_boolean: !input bypass_boolean
       input_binary_sensors: !input binary_sensors
       input_countdown_time: !input countdown_time
-      input_transition_tid: !input transition_tid
+      input_bevegelse_transition_tid: !input bevegelse_transition_tid
+      input_sol_transition_tid: !input sol_transition_tid
       input_grense_for_sol: !input grense_for_sol
-      input_nattmodus_boolean: !input nattmodus_boolean
       input_scene_dagtid_aktiv: !input scene_dagtid_aktiv
       input_scene_dagtid_passiv: !input scene_dagtid_passiv
       input_scene_kveldstid_aktiv: !input scene_kveldstid_aktiv
       input_scene_kveldstid_passiv: !input scene_kveldstid_passiv
+      input_nattmodus_boolean: !input nattmodus_boolean
+      input_natt_countdown_time: !input natt_countdown_time
       input_scene_natt_aktiv: !input scene_natt_aktiv
+      transition_tid: > # Sette ulik varighet basert på trigger.id
+        {{ input_sol_transition_tid if trigger.id == 'sol_oppgang' or trigger.id == 'sol_nedgang' else input_bevegelse_transition_tid }}
       sol_hoyde: "{{ state_attr('sun.sun', 'elevation') }}" #Finne nåværende høyde
       sol_grense: >-
         {% if states(input_grense_for_sol) | float != 0 %}
@@ -184,10 +216,8 @@ action:
         {% else %}
           6
         {% endif %}
-  - variables:
       aktuell_scene: |-
-        {% if is_state(input_nattmodus_boolean, 'on') %}
-          Debug: input_nattmodus_boolean is on
+        {% if is_state(input_nattmodus_boolean, 'on') and input_scene_natt_aktiv | count > 0 %}
           {{ input_scene_natt_aktiv }}
         {% else %}
           {% if is_state(input_input_booleans, 'on') and sol_hoyde > sol_grense %}
@@ -215,7 +245,7 @@ action:
         sequence: #Kjør rett scene
           - service: scene.turn_on
             data:
-              transition: "{{ input_transition_tid }}"
+              transition: "{{ transition_tid }}"
             target:
               entity_id: "{{ aktuell_scene }}"
   - choose:
