@@ -72,10 +72,9 @@ blueprint:
       icon: mdi:weather-sunset
       description: Dette er innstillinger for soloppgang/-nedgang.
       input:
-        grense_for_sol:
+        grense_for_sol: #Kan gjøres optional hvis triggeren kan deaktiveres
           name: Grense for Sol
           description: Hvor lavt over horisonten skal sola være før det går fra dag til kveld? Legg inn en input_number som definerer hvor høyden i grader. Hvis ingen er definert, brukes 6 grader som standard.
-          default: 6
           selector:
             entity:
               domain: input_number
@@ -122,29 +121,37 @@ blueprint:
               - domain:
                 - scene
     nattmodus_section:
-      name: Nattmodus (Valgfritt)
+      name: Nattmodus
       icon: mdi:weather-night
       description: Dette er innstillinger for nattmodus. Når denne er aktiv, så vil lyset gå til en annen scene når området blir aktivt. Man kan også angi en annen tidsvarighet.
-      collapsed: true
       input:
         nattmodus_boolean:
           name: Velg bryteren for Nattmodus
           description: Angi hjelpeverdien for området. Må være en input_boolean. Har du ikke en fra før, kan du opprette en. Angis den ikke, vil ikke nattmodus fungere på dette området.
-          default:
           selector:
             entity:
               domain: input_boolean
               multiple: false
         natt_countdown_time:
           name: Velg varighet
-          description: Hvor lang tid skal det ta før lyset skal slukkes?
+          description: Hvor lang tid skal det ta før lyset skal slukkes i nattmodus?
           default: '00:01:00'
           selector:
             duration: {}
         scene_natt_aktiv:
           name: Nattlys Aktiv
-          description: Når det er natt og lyset skal slås på lavt.
-          default: []
+          description: Når det er natt og lyset skal slås på.
+#          default: []
+          selector:
+            entity:
+              multiple: true
+              filter:
+              - domain:
+                - scene
+        scene_natt_passiv:
+          name: Nattlys Passiv
+          description: Når det er natt og lyset skal slås av.
+#          default: []
           selector:
             entity:
               multiple: true
@@ -207,26 +214,42 @@ action:
       input_nattmodus_boolean: !input nattmodus_boolean
       input_natt_countdown_time: !input natt_countdown_time
       input_scene_natt_aktiv: !input scene_natt_aktiv
+      input_scene_natt_passiv: !input scene_natt_passiv
+      input_booleans: |-
+        {% if is_state(input_input_booleans, 'on') %}
+          {{ true }}
+        {% else %}
+          {{ false }}
+        {% endif %}
+      nattmodus_boolean: |-
+        {% if is_state(input_nattmodus_boolean, 'on') %}
+          {{ true }}
+        {% else %}
+          {{ false }}
+        {% endif %}
+      countdown_time: |-
+        {% if nattmodus_boolean == true %}
+          {{ input_natt_countdown_time }}
+        {% else %}
+          {{ input_countdown_time }}
+        {% endif %}
       transition_tid: > # Sette ulik varighet basert på trigger.id
         {{ input_sol_transition_tid if trigger.id == 'sol_oppgang' or trigger.id == 'sol_nedgang' else input_bevegelse_transition_tid }}
       sol_hoyde: "{{ state_attr('sun.sun', 'elevation') }}" #Finne nåværende høyde
-      sol_grense: >-
-        {% if states(input_grense_for_sol) | float != 0 %}
-          {{ states(input_grense_for_sol) | float }}
-        {% else %}
-          6
-        {% endif %}
+      sol_grense: "{{ states(input_grense_for_sol) }}"
       aktuell_scene: |-
-        {% if is_state(input_nattmodus_boolean, 'on') and input_scene_natt_aktiv | count > 0 %}
+        {% if input_booleans == true and nattmodus_boolean == true %}
           {{ input_scene_natt_aktiv }}
+        {% elif input_booleans == false and nattmodus_boolean == true %}
+          {{ input_scene_natt_passiv }}
         {% else %}
-          {% if is_state(input_input_booleans, 'on') and sol_hoyde > sol_grense %}
+          {% if input_booleans == true and sol_hoyde > sol_grense %}
             {{ input_scene_dagtid_aktiv }}
-          {% elif is_state(input_input_booleans, 'off') and sol_hoyde > sol_grense %}
+          {% elif input_booleans == false and sol_hoyde > sol_grense %}
             {{ input_scene_dagtid_passiv }}
-          {% elif is_state(input_input_booleans, 'on') and sol_hoyde <= sol_grense %}
+          {% elif input_booleans == true and sol_hoyde <= sol_grense %}
             {{ input_scene_kveldstid_aktiv }}
-          {% elif is_state(input_input_booleans, 'off') and sol_hoyde <= sol_grense %}
+          {% elif input_booleans == false and sol_hoyde <= sol_grense %}
             {{ input_scene_kveldstid_passiv }}
           {% else %}
             none
@@ -267,7 +290,7 @@ action:
                   - service: input_boolean.turn_on #Slå på område_boolean
                     target:
                       entity_id: !input input_booleans
-          - delay: !input countdown_time # La tiden gå!
+          - delay: "{{ countdown_time }}" # La tiden gå!
           - repeat: # Loop som lar tiden gå til alle sensorer er 'off'.
               while:
                 - condition: template #Hvis noen av sensorene fremdeles er on, skal tiden restartes. Løser typisk problem med IKEA-sensorer.
@@ -275,7 +298,7 @@ action:
                     {% set sensors = expand(input_binary_sensors) %}
                     {{ sensors | selectattr('state', 'eq', 'on') | list | length > 0 }}
               sequence:
-                - delay: !input countdown_time
+                - delay: "{{ countdown_time }}"
           - service: input_boolean.turn_off
             target:
               entity_id: !input input_booleans
