@@ -4,7 +4,7 @@ blueprint:
     Dette er en automasjon som styrer lys automatisk basert med bevegelsessensorer, dagslys og nattmodus.
   domain: automation
   author: Karl Jørgen Marthinsen
-  source_url: https://github.com/karlalskens/Home-Assistant-Lysstyring/blob/main/blueprints/automation/karlalskens_Lysstyring/Automatisk Lysstyring.yaml
+  source_url: https://github.com/karlalskens/Home-Assistant-Lysstyring/blob/main/blueprints/automation/karlalskens_Lysstyring/Automatisk_Lysstyring.yaml
   homeassistant:
     min_version: '2024.6.4'
   input:
