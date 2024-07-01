@@ -33,14 +33,15 @@ blueprint:
       description: Her setter du opp hvilket område av huset som skal styres. Det kan være et rom, eller en del av et større rom.
       input:
         binary_sensors:
-          name: Bevegelsessensorer innenfor området
+          name: Bevegelsessensorer innenfor området (Valgfritt)
           description: Hvilke bevegelsessensorer befinner seg innenfor området?
+          default: []
           selector:
             entity:
               domain: binary_sensor
               multiple: true
         utenfor_binary_sensors:
-          name: Bevegelsessensorer i utkanten av området
+          name: Bevegelsessensorer i utkanten av området (Valgfritt)
           description: Er det noen nærliggende sensorer som skal trigge bevegelse?
           default: []
           selector:
