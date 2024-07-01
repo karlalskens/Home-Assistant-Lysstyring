@@ -252,10 +252,12 @@ action:
       sol_hoyde: "{{ state_attr('sun.sun', 'elevation') }}" #Finne nåværende høyde
       sol_grense: "{{ states(input_grense_for_sol) }}"
       aktuell_scene: |-
-        {% if input_booleans == true and nattmodus_boolean == true %}
-          {{ input_scene_natt_aktiv }}
-        {% elif input_booleans == false and nattmodus_boolean == true %}
-          {{ input_scene_natt_passiv }}
+        {% if nattmodus_boolean == true %}
+          {% if input_booleans == true %}
+            {{ input_scene_natt_aktiv }}
+          {% else %}
+            {{ input_scene_natt_passiv }}
+          {% endif %}
         {% else %}
           {% if input_booleans == true and sol_hoyde > sol_grense %}
             {{ input_scene_dagtid_aktiv }}
