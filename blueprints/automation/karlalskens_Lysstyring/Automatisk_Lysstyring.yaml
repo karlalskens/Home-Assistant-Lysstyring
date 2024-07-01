@@ -33,8 +33,16 @@ blueprint:
       description: Her setter du opp hvilket område av huset som skal styres. Det kan være et rom, eller en del av et større rom.
       input:
         binary_sensors:
-          name: Bevegelsessensorer
-          description: Hvilke bevegelsessensorer skal brukes som triggere?
+          name: Bevegelsessensorer innenfor området
+          description: Hvilke bevegelsessensorer befinner seg innenfor området?
+          selector:
+            entity:
+              domain: binary_sensor
+              multiple: true
+        utenfor_binary_sensors:
+          name: Bevegelsessensorer i utkanten av området
+          description: Er det noen nærliggende sensorer som skal trigge bevegelse?
+          default: []
           selector:
             entity:
               domain: binary_sensor
@@ -164,6 +172,11 @@ trigger:
     from: "off"
     to: "on"
     id: 'bevegelse_utløst'
+  - platform: state #Bevegelsesensor Utløst
+    entity_id: !input utenfor_binary_sensors
+    from: "off"
+    to: "on"
+    id: 'utenfor_bevegelse_utløst'
   - platform: state # Område Input_boolean er aktivert
     entity_id: !input input_booleans
     from: "off"
@@ -203,6 +216,7 @@ action:
       input_input_booleans: !input input_booleans
       input_bypass_boolean: !input bypass_boolean
       input_binary_sensors: !input binary_sensors
+      input_utenfor_binary_sensors: !input utenfor_binary_sensors
       input_countdown_time: !input countdown_time
       input_bevegelse_transition_tid: !input bevegelse_transition_tid
       input_sol_transition_tid: !input sol_transition_tid
@@ -275,11 +289,17 @@ action:
       - conditions:
           - condition: or
             conditions:
-              - condition: trigger #Hvis en bevegelsessensor blir utløst
+              - condition: trigger # Hvis en bevegelsessensor blir utløst
                 id: bevegelse_utløst
-              - condition: state #Hvis områdets input_boolean blir slått på
+              - condition: state # Hvis områdets input_boolean blir slått på
                 entity_id: !input input_booleans
                 state: "on"
+              - condition: and
+                conditions:
+                  - condition: trigger
+                    id: utenfor_bevegelse_utløst
+                  - condition: template
+                    value_template: "{{ not nattmodus_boolean }}"
         sequence:
           - choose: #Hvis input_boolean er av
               - conditions:
@@ -293,10 +313,12 @@ action:
           - delay: "{{ countdown_time }}" # La tiden gå!
           - repeat: # Loop som lar tiden gå til alle sensorer er 'off'.
               while:
-                - condition: template #Hvis noen av sensorene fremdeles er on, skal tiden restartes. Løser typisk problem med IKEA-sensorer.
+                - condition: template # Hvis noen av sensorene fremdeles er 'on', skal tiden restartes. Løser typisk problem med IKEA-sensorer.
                   value_template: >-
-                    {% set sensors = expand(input_binary_sensors) %}
-                    {{ sensors | selectattr('state', 'eq', 'on') | list | length > 0 }}
+                    {% set binary_sensors = expand(input_binary_sensors) %}
+                    {% set utenfor_sensors = expand(input_utenfor_binary_sensors) %}
+                    {% set all_sensors = binary_sensors + utenfor_sensors %}
+                    {{ all_sensors | selectattr('state', 'eq', 'on') | list | length > 0 }}
               sequence:
                 - delay: "{{ countdown_time }}"
           - service: input_boolean.turn_off
