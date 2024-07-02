@@ -1,0 +1,136 @@
+blueprint:
+  name: Enkel Tidsstyring
+  description: >
+    Dette er en enkel automasjon som styrer enheter av og på basert på sensorer og tid.
+  domain: automation
+  author: Karl Jørgen Marthinsen
+  source_url: https://github.com/karlalskens/Home-Assistant-Lysstyring/blob/main/blueprints/automation/karlalskens_Lysstyring/Enkel_tidsstyring.yaml
+  homeassistant:
+    min_version: '2024.6.4'
+  input:
+    omraade_section:
+      name: Enhet
+      icon: mdi:power-plug
+      input:
+        input_boolean:
+          name: Hjelpeverdi
+          description: Angi hjelpeverdien for enhetene. Denne fungerer som en hukommelse for Home Assistant om området er av eller på. Må være en input_boolean. Har du ikke en fra før, kan du opprette en.
+          selector:
+            entity:
+              domain: input_boolean
+              multiple: false
+        bypass_boolean:
+          name: Hjelpeverdien for deaktivering av tidsstyringen
+          description: Angi hjelpeverdi skal brukes til å midlertidig deaktivere styringen. Må være en input_boolean. Har du ikke en fra før, kan du opprette en.
+          selector:
+            entity:
+              domain: input_boolean
+              multiple: false
+        enhet_entity:
+          name: Enhet
+          description: Hvilken enhet skal styres? Må være en switch.
+          selector:
+            entity:
+              multiple: true
+              filter:
+                - domain: switch
+    sensorer_section:
+      name: Sensorer
+      icon: mdi:motion-sensor
+      input:
+        binary_sensors:
+          name: Bevegelsessensorer (Valgfritt)
+          description: Hvilke bevegelsessensorer skal slå enheten av og på?
+          default: []
+          selector:
+            entity:
+              domain: binary_sensor
+              multiple: true
+    tid_section:
+      name: Sensorer
+      icon: mdi:clock
+      input:
+        countdown_time:
+          name: Velg varighet
+          description: Hvor lang tid skal det ta før enhetene slås av?
+          selector:
+            duration: {}
+trigger:
+  - platform: state #Bevegelsesensor Utløst
+    entity_id: !input binary_sensors
+    from: "off"
+    to: "on"
+    id: 'bevegelse_utløst'
+  - platform: state # Område Input_boolean er aktivert
+    entity_id: !input input_boolean
+    from: "off"
+    to: "on"
+    id: 'område_boolean_aktivert'
+  - platform: state # Område Input_boolean er deaktivert
+    entity_id: !input input_boolean
+    from: "on"
+    to: "off"
+    id: 'område_boolean_deaktivert'
+condition:
+  - condition: state #Sjekker om variabel for deaktivering av styring
+    entity_id: !input bypass_boolean
+    state: "off"
+action:
+  - variables: #Definerer alle variabler fra skjemaet
+      input_input_boolean: !input input_boolean
+      input_enhet_entity: !input enhet_entity
+      input_binary_sensors: !input binary_sensors
+      input_countdown_time: !input countdown_time
+      input_boolean: |-
+        {% if is_state(input_input_boolean, 'on') %}
+          {{ true }}
+        {% else %}
+          {{ false }}
+        {% endif %}
+  - choose:
+      - conditions:
+          - condition: trigger #Hvis området aktiveres
+            id: område_boolean_aktivert
+        sequence: #Kjør rett scene
+          - service: switch.turn_on
+            entity_id: !input enhet_entity
+      - conditions:
+          - condition: trigger #Hvis området deaktiveres
+            id: område_boolean_deaktivert
+        sequence: #Kjør rett scene
+          - service: switch.turn_off
+            entity_id: !input enhet_entity
+  - choose:
+      - conditions:
+          - condition: or
+            conditions:
+              - condition: trigger # Hvis en bevegelsessensor blir utløst
+                id: bevegelse_utløst
+              - condition: trigger # Hvis en bevegelsessensor blir utløst
+                id: område_boolean_aktivert
+              - condition: state # Hvis områdets input_boolean blir slått på
+                entity_id: !input input_boolean
+                state: "on"
+        sequence:
+          - choose: #Hvis input_boolean er av
+              - conditions:
+                  - condition: state
+                    entity_id: !input input_boolean
+                    state: "off"
+                sequence:
+                  - service: input_boolean.turn_on #Slå på område_boolean
+                    target:
+                      entity_id: !input input_boolean
+          - delay: !input countdown_time # La tiden gå!
+          - repeat: # Loop som lar tiden gå til alle sensorer er 'off'.
+              while:
+                - condition: template # Hvis noen av sensorene fremdeles er 'on', skal tiden restartes. Løser typisk problem med IKEA-sensorer.
+                  value_template: >-
+                    {% set binary_sensors = expand(input_binary_sensors) %}}
+                    {{ binary_sensors | selectattr('state', 'eq', 'on') | list | length > 0 }}
+              sequence:
+                - delay: !input countdown_time
+          - service: input_boolean.turn_off
+            target:
+              entity_id: !input input_boolean
+mode: restart
