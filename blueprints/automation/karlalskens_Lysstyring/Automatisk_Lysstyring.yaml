@@ -167,6 +167,19 @@ blueprint:
               filter:
               - domain:
                 - scene
+    reparasjon_section:
+      name: Reparasjon (Valgfritt)
+      icon: mdi:wrench
+      collapsed: true
+      input:
+        knapp_reparasjon:
+          name: Reparasjonsknapp
+          description: Hvis ikke alle scener blir utført rett, vil denne knappen oppdatere alle lys og starte tiden på nytt.
+          default: []
+          selector:
+            entity:
+              domain: input_button
+              multiple: false          
 trigger:
   - platform: state #Bevegelsesensor Utløst
     entity_id: !input binary_sensors
@@ -208,6 +221,9 @@ trigger:
     from: "on"
     to: "off"
     id: 'nattmodus_deaktivert'
+  - platform: state #Reparasjonsknapp trykket
+    entity_id: !input knapp_reparasjon
+    id: reparasjonknapp_utløst
 condition:
   - condition: state #Sjekker om variabel for deaktivering av lysstyring
     entity_id: !input bypass_boolean
@@ -294,7 +310,7 @@ action:
             conditions:
               - condition: trigger # Hvis en bevegelsessensor blir utløst
                 id: bevegelse_utløst
-              - condition: state # Hvis områdets input_boolean blir slått på
+              - condition: state # Hvis områdets input_boolean er slått på
                 entity_id: !input input_booleans
                 state: "on"
               - condition: and
