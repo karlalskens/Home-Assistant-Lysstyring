@@ -168,12 +168,18 @@ blueprint:
               - domain:
                 - scene
     reparasjon_section:
-      name: Reparasjon
+      name: Reparasjon (Valgfritt)
       icon: mdi:wrench
+      collapsed: true
       input:
         knapp_reparasjon:
           name: Reparasjonsknapp
           description: Hvis ikke alle scener blir utført rett, vil denne knappen oppdatere alle lys og starte tiden på nytt.
+          default: []
+          selector:
+            entity:
+              domain: input_button
+              multiple: false          
 trigger:
   - platform: state #Bevegelsesensor Utløst
     entity_id: !input binary_sensors
