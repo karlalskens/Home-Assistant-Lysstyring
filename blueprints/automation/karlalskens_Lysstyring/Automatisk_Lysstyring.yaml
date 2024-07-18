@@ -264,8 +264,14 @@ action:
         {% else %}
           {{ input_countdown_time }}
         {% endif %}
-      transition_tid: > # Sette ulik varighet basert på trigger.id
-        {{ input_sol_transition_tid if trigger.id == 'sol_oppgang' or trigger.id == 'sol_nedgang' else input_bevegelse_transition_tid }}
+      transition_tid: >
+        {% if trigger.id == 'sol_oppgang' or trigger.id == 'sol_nedgang' %}
+          {{ input_sol_transition_tid }}
+        {% elif trigger.id == 'reparasjonknapp_utløst' %}
+          0
+        {% else %}
+          {{ input_bevegelse_transition_tid }}
+        {% endif %}
       sol_hoyde: "{{ state_attr('sun.sun', 'elevation') }}" #Finne nåværende høyde
       sol_grense: "{{ states(input_grense_for_sol) }}"
       aktuell_scene: |-
