@@ -83,7 +83,7 @@ blueprint:
       input:
         grense_for_sol: #Kan gjøres optional hvis triggeren kan deaktiveres
           name: Grense for Sol
-          description: Hvor lavt over horisonten skal sola være før det går fra dag til kveld? Legg inn en input_number som definerer hvor høyden i grader. Hvis ingen er definert, brukes 6 grader som standard.
+          description: Hvor lavt over horisonten skal sola være før det går fra dag til kveld? Legg inn en input_number som definerer hvor høyden i grader.
           selector:
             entity:
               domain: input_number
@@ -91,7 +91,7 @@ blueprint:
     scener_section:
       name: Lys og Scener
       icon: mdi:lamps
-      description: Vel scenene som skal brukes til lysstyringen. Scenene kan også inneholde innstillinger for andre enheter, som TV, garasjedør, osv.
+      description: "Vel scenene som skal brukes til lysstyringen. Tips: Scenene kan også inneholde innstillinger for andre typer enheter, som TV, garasjedør, osv."
       input:
         scene_dagtid_aktiv:
           name: Dagtid Aktiv
@@ -136,7 +136,7 @@ blueprint:
       input:
         nattmodus_boolean:
           name: Velg bryteren for Nattmodus
-          description: Angi hjelpeverdien for området. Må være en input_boolean. Har du ikke en fra før, kan du opprette en. Angis den ikke, vil ikke nattmodus fungere på dette området.
+          description: Angi hjelpeverdien for området. Må være en input_boolean. Har du ikke en fra før, kan du opprette en.
           selector:
             entity:
               domain: input_boolean
@@ -168,13 +168,13 @@ blueprint:
                 - domain:
                     - scene
     reparasjon_section:
-      name: Reparasjon (Valgfritt)
+      name: Reparasjon
       icon: mdi:wrench
-      collapsed: true
+      collapsed: false
       input:
         knapp_reparasjon:
           name: Reparasjonsknapp
-          description: Hvis ikke alle scener blir utført rett, vil denne knappen oppdatere alle lys og starte tiden på nytt.
+          description: Hvis ikke alle scener blir utført rett, vil denne knappen oppdatere alle lys og starte tiden på nytt. Dette er valgfritt.
           default: []
           selector:
             entity:
