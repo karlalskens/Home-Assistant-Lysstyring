@@ -6,7 +6,7 @@ blueprint:
   author: Karl Jørgen Marthinsen
   source_url: https://github.com/karlalskens/Home-Assistant-Lysstyring/blob/main/blueprints/automation/karlalskens_Lysstyring/Automatisk_Lysstyring.yaml
   homeassistant:
-    min_version: '2024.6.4'
+    min_version: "2024.12.4"
   input:
     omraade_section:
       name: Område
@@ -51,7 +51,7 @@ blueprint:
         countdown_time:
           name: Velg varighet
           description: Hvor lang tid skal det ta før lyset skal slukkes?
-          default: '00:45:00'
+          default: "00:45:00"
           selector:
             duration: {}
         bevegelse_transition_tid:
@@ -100,8 +100,8 @@ blueprint:
             entity:
               multiple: true
               filter:
-              - domain:
-                - scene
+                - domain:
+                    - scene
         scene_dagtid_passiv:
           name: Dagtid Passiv
           description: Når det er dagslys og lyset skal slås av.
@@ -109,8 +109,8 @@ blueprint:
             entity:
               multiple: true
               filter:
-              - domain:
-                - scene
+                - domain:
+                    - scene
         scene_kveldstid_aktiv:
           name: Kveldstid Aktiv
           description: Når det er kveld/natt og lyset skal slås på.
@@ -118,8 +118,8 @@ blueprint:
             entity:
               multiple: true
               filter:
-              - domain:
-                - scene
+                - domain:
+                    - scene
         scene_kveldstid_passiv:
           name: Kveldstid Passiv
           description: Når det er kveld/natt ute og lyset skal slås av.
@@ -127,8 +127,8 @@ blueprint:
             entity:
               multiple: true
               filter:
-              - domain:
-                - scene
+                - domain:
+                    - scene
     nattmodus_section:
       name: Nattmodus
       icon: mdi:weather-night
@@ -144,29 +144,29 @@ blueprint:
         natt_countdown_time:
           name: Velg varighet
           description: Hvor lang tid skal det ta før lyset skal slukkes i nattmodus?
-          default: '00:01:00'
+          default: "00:01:00"
           selector:
             duration: {}
         scene_natt_aktiv:
           name: Nattlys Aktiv
           description: Når det er natt og lyset skal slås på.
-#          default: []
+          #          default: []
           selector:
             entity:
               multiple: true
               filter:
-              - domain:
-                - scene
+                - domain:
+                    - scene
         scene_natt_passiv:
           name: Nattlys Passiv
           description: Når det er natt og lyset skal slås av.
-#          default: []
+          #          default: []
           selector:
             entity:
               multiple: true
               filter:
-              - domain:
-                - scene
+                - domain:
+                    - scene
     reparasjon_section:
       name: Reparasjon (Valgfritt)
       icon: mdi:wrench
@@ -179,48 +179,48 @@ blueprint:
           selector:
             entity:
               domain: input_button
-              multiple: false          
+              multiple: false
 trigger:
   - platform: state #Bevegelsesensor Utløst
     entity_id: !input binary_sensors
     from: "off"
     to: "on"
-    id: 'bevegelse_utløst'
+    id: "bevegelse_utløst"
   - platform: state #Bevegelsesensor Utløst
     entity_id: !input utenfor_binary_sensors
     from: "off"
     to: "on"
-    id: 'utenfor_bevegelse_utløst'
+    id: "utenfor_bevegelse_utløst"
   - platform: state # Område Input_boolean er aktivert
     entity_id: !input input_booleans
     from: "off"
     to: "on"
-    id: 'område_boolean_aktivert'
+    id: "område_boolean_aktivert"
   - platform: state # Område Input_boolean er deaktivert
     entity_id: !input input_booleans
     from: "on"
     to: "off"
-    id: 'område_boolean_deaktivert'
+    id: "område_boolean_deaktivert"
   - platform: numeric_state #Solen har gått opp
     entity_id: sun.sun
     attribute: elevation
     above: !input grense_for_sol
-    id: 'sol_oppgang'
+    id: "sol_oppgang"
   - platform: numeric_state #Solen har gått ned
     entity_id: sun.sun
     attribute: elevation
     below: !input grense_for_sol
-    id: 'sol_nedgang'
+    id: "sol_nedgang"
   - platform: state #Nattmodus slått på
     entity_id: !input nattmodus_boolean
     from: "off"
     to: "on"
-    id: 'nattmodus_aktivert'
+    id: "nattmodus_aktivert"
   - platform: state #Nattmodus slått av
     entity_id: !input nattmodus_boolean
     from: "on"
     to: "off"
-    id: 'nattmodus_deaktivert'
+    id: "nattmodus_deaktivert"
   - platform: state #Reparasjonsknapp trykket
     entity_id: !input knapp_reparasjon
     id: reparasjonknapp_utløst
@@ -296,20 +296,25 @@ action:
         {% endif %}
   - choose:
       - conditions:
-          - condition: not
+          - condition: or
             conditions:
-              - condition: or
-                conditions:
-                  - condition: trigger #Alt annet enn hvis bevegelse blir oppdaget
-                    id: bevegelse_utløst
-                  - condition: template
-                    value_template: "{{ aktuell_scene == 'none' }}"
-        sequence: #Kjør rett scene
-          - service: scene.turn_on
-            data:
-              transition: "{{ transition_tid }}"
-            target:
-              entity_id: "{{ aktuell_scene }}"
+              - condition: trigger
+                id: bevegelse_utløst
+              - condition: template
+                value_template: '{{ aktuell_scene == "none" }}'
+              - condition: template
+                value_template: >-
+                  {{ trigger.id == 'utenfor_bevegelse_utløst'
+                    and is_state(input_input_booleans, 'on') }}
+        # Hvis én av disse betingelsene slår til, gjør ingenting
+        sequence: []
+    default:
+      # Hvis ingen av betingelsene slår til, kjør scenen
+      - service: scene.turn_on
+        data:
+          transition: "{{ transition_tid }}"
+        target:
+          entity_id: "{{ aktuell_scene }}"
   - choose:
       - conditions:
           - condition: or
