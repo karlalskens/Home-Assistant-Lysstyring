@@ -225,9 +225,14 @@ trigger:
     entity_id: !input knapp_reparasjon
     id: reparasjonknapp_utløst
 condition:
-  - condition: state #Sjekker om variabel for deaktivering av lysstyring
-    entity_id: !input bypass_boolean
-    state: "off"
+  - condition: or
+    conditions:
+      - condition: template
+        value_template: >
+          {{ trigger.id == 'binary_sensors' and is_state(!input bypass_boolean, 'off') }}
+      - condition: template
+        value_template: >
+          {{ trigger.id == 'utenfor_binary_sensors' and is_state(!input bypass_boolean, 'off') }}
 action:
   - variables: #Definerer alle variabler fra skjemaet
       input_input_booleans: !input input_booleans
@@ -328,8 +333,14 @@ action:
                 conditions:
                   - condition: trigger
                     id: utenfor_bevegelse_utløst
-                  - condition: template
-                    value_template: "{{ not nattmodus_boolean }}"
+                  - condition: state
+                    entity_id: !input nattmodus_boolean
+                    state: "on"
+              -condition: not
+                conditions:
+                  - condition: state
+                    entity_id: !input bypass_boolean
+                    state: "on"
         sequence:
           - choose: #Hvis input_boolean er av
               - conditions:
